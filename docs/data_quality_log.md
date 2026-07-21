@@ -12,4 +12,14 @@ Finding template: Numbers -> Reading -> So what -> Limits.
 - **Status**: Open
 ---
 
+## DQ-002: leading zeros lost in zip_code_prefix (stored as INT64)
+- **Numbers**: 'zip_code_prefix' appeared in 4 or 5 characters in 3 tables -customers, sellers, geolocation. (customer_zip_code_prefix, seller_zip_code_prefix, geolocation_zip_code_prefix). Confirmed via LENGTH check.
+- **Reading**: Brazilian postal code usually includes 8 characters with the first 5 for prefix, included possible the first '0'.
+- **So what / Action**: LPAD to make sure the structure of 5 characters and the first character of '0' if needed. Must be applied consistently across all 3 tables.
+- **Fix location**: olist_stg
+- **Status**: Open
+---
+
+
+
 
