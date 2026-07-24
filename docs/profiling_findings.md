@@ -106,7 +106,16 @@ Raw output from batched queries, stored once and referenced by ID from the table
 *Anchor ≈ 99.4k across the three order-related tables. Deviations from this anchor are structural (one-to-many relationships or coverage gaps), not random.*
 
 ### E2 — PK uniqueness & key nulls
-`sql/01b_keys.sql` · *pending*
+`sql/01b_keys.sql` · `Olist_stg.__TABLES__`
+
+|TABLE|Tier|Value|
+|---|---|---:|
+|order_items|A|112,650|
+|order_reviews|A|98,410|
+|orders|A|99,441|
+|customers|B|99,441|
+|products|B|32,951|
+|sellers|B|3,095|
 
 ### E3 — Null rates, all columns
 `sql/01c_nulls.sql` · *pending*
