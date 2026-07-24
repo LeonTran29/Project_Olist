@@ -81,6 +81,17 @@ Raw output from batched queries, stored once and referenced by ID from the table
 | sellers | 3,095 |
 | product_category_name | 72 |
 
+**|TABLE|Tier|Value|**
+|order_payments|	-	|103886|
+|order_items|	A	|112650|
+|order_reviews|	A	|99224|
+|orders|	A	|99441|
+|customers|	B	|99441|
+|products|	B	|32951|
+|sellers|	B	|3095|
+|geolocation|	C	|1000163|
+|product_category_name|C|72|
+
 *Anchor ≈ 99.4k across the three order-related tables. Deviations from this anchor are structural (one-to-many relationships or coverage gaps), not random.*
 
 ### E2 — PK uniqueness & key nulls
