@@ -62,6 +62,28 @@ Every finding follows the fixed shape:
 
 ---
 
+## Coverage matrix
+
+Rows = tables · Columns = the 8 points · **☐** applicable, not yet done · **☑** done · **–** not applicable
+
+| Table | Tier | 1 Vol | 2 PK | 3 Null | 4 Card | 5 Range | 6 Domain | 7 RefInt | 8 Rule |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `orders` | A | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| `order_items` | A | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| `order_reviews` | A | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| `customers` | B | – | ☐ | ☐ | – | – | – | – | – |
+| `sellers` | B | – | ☐ | ☐ | – | – | – | – | – |
+| `products` | B | – | ☐ | ☐ | – | – | – | – | – |
+| `geolocation` | C | – | – | – | – | – | – | ☐ | – |
+| `product_category_name` | C | – | – | – | – | – | – | ☐ | – |
+| `order_payments` | ⏸ | – | – | – | – | – | – | – | – |
+
+**Why the blanks:** Tier B tables are dimensions — their only job is to join cleanly, so key integrity (2, 3) is sufficient. Tier C tables are lookups where the sole risk is incomplete coverage (7); `geolocation` in particular has no primary key by design, making point 2 inapplicable rather than unmeasured. `order_payments` is deferred: its grain is payment-level, not order-level, and the payment flow is scoped to a future project.
+
+Point 1 is closed for all three Tier A tables *(source: E1)*.
+
+---
+
 ## Shared evidence
 
 Raw output from batched queries, stored once and referenced by ID from the table sections below. Findings cite the source (e.g. `source: E1`) instead of repeating the numbers.
