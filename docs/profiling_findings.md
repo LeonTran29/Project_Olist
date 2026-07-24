@@ -1,6 +1,6 @@
 # Data Profiling Findings — Olist E-Commerce
 
-**Layer profiled:** `Olist_stg` &nbsp;|&nbsp; **Phase:** Profiling (`sql/01_profiling.sql`) &nbsp;|&nbsp; **Grain focus:** delivery flow (purchase → delivery)
+**Layer profiled:** `Olist_stg` &nbsp;|&nbsp; **Phase:** Profiling (`sql/01*`) &nbsp;|&nbsp; **Grain focus:** delivery flow (purchase → delivery)
 
 ---
 
@@ -62,6 +62,35 @@ Every finding follows the fixed shape:
 
 ---
 
+## Shared evidence
+
+Raw output from batched queries, stored once and referenced by ID from the table sections below. Findings cite the source (e.g. `source: E1`) instead of repeating the numbers.
+
+### E1 — Row counts, all tables
+`sql/01a_structure.sql` · `Olist_stg.__TABLES__`
+
+| Table | Rows |
+|---|---:|
+| geolocation | 1,000,163 |
+| order_items | 112,650 |
+| order_payments | 103,886 |
+| orders | 99,441 |
+| customers | 99,441 |
+| order_reviews | 99,224 |
+| products | 32,951 |
+| sellers | 3,095 |
+| product_category_name | 72 |
+
+*Anchor ≈ 99.4k across the three order-related tables. Deviations from this anchor are structural (one-to-many relationships or coverage gaps), not random.*
+
+### E2 — PK uniqueness & key nulls
+`sql/01b_keys.sql` · *pending*
+
+### E3 — Null rates, all columns
+`sql/01c_nulls.sql` · *pending*
+
+---
+
 # Tier A — full 8-point
 
 ## `orders`
@@ -69,10 +98,10 @@ Every finding follows the fixed shape:
 > PK: `order_id` · join keys: `customer_id` · key dates drive `is_late` / `days_vs_promise`
 
 ### 1. Volume
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** 99,441 rows *(source: E1)*
+- **Reading:** The anchor volume for the whole model — one row per order. Exactly equal to `customers`, which places the per-order interpretation of `customer_id` under suspicion rather than the per-person one.
+- **So what:** The order-grain fact table must land on exactly 99,441 rows. Any other figure after joins signals fan-out or dropped rows, not a change in the business. Repeat-buyer analysis must route through `customer_unique_id`.
+- **Limits:** Row count describes volume only — it says nothing about duplicate IDs, nulls, or row validity. The match with `customers` is *consistent with* the per-order reading but does not prove it; confirmed via cardinality in point 4.
 
 ### 2. Uniqueness / PK
 - **Numbers:**
