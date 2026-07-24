@@ -152,10 +152,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 > PK: (`order_id`, `order_item_id`) — composite · join keys: `order_id`, `product_id`, `seller_id` · one-to-many with `orders` (double-count trap)
 
 ### 1. Volume
--- **Numbers:** 112,650 rows (source: E1). Max items per order = 21.
--- **Reading:** 112,650 units sold across 99,441 orders — 1.13 units per order. The table is one-to-many with orders: most orders carry a single line, but one reaches 21. Each row is one unit sold, not one distinct product; products holds 32,951 SKUs.
--- **So what:** 112,650 is the baseline for units sold in this period; any other figure signals a problem upstream. When joining to orders, order counts must use COUNT(DISTINCT order_id) — the raw join returns 112,650 rows and would inflate order volume by 13%. The gap between the two figures is itself measurable as an add-on purchase rate.
--- **Limits:** Fulfilment outcome per line is unknown — how many units were delivered, stalled, or cancelled cannot be determined from this table. The 1.13 average hides the shape of the distribution between 1 and 21. It is also computed against all orders, including 775 that carry no line at all (quantified in point 7); measured only against orders that do have lines, the figure is 1.14.
+- **Numbers:** 112,650 rows (source: E1). Max items per order = 21.
+- **Reading:** 112,650 units sold across 99,441 orders — 1.13 units per order. The table is one-to-many with orders: most orders carry a single line, but one reaches 21. Each row is one unit sold, not one distinct product; products holds 32,951 SKUs.
+- **So what:** 112,650 is the baseline for units sold in this period; any other figure signals a problem upstream. When joining to orders, order counts must use COUNT(DISTINCT order_id) — the raw join returns 112,650 rows and would inflate order volume by 13%. The gap between the two figures is itself measurable as an add-on purchase rate.
+- **Limits:** Fulfilment outcome per line is unknown — how many units were delivered, stalled, or cancelled cannot be determined from this table. The 1.13 average hides the shape of the distribution between 1 and 21. It is also computed against all orders, including 775 that carry no line at all (quantified in point 7); measured only against orders that do have lines, the figure is 1.14.
 
 ### 2. Uniqueness / PK
 - **Numbers:**
@@ -206,10 +206,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 > PK: `review_id` · join key: `order_id` · `review_score` is the numeric consequence metric of the delivery flow
 
 ### 1. Volume
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** 99,224 rows (source: E1)
+- **Reading:** 217 fewer rows than the 99,441 order anchor — a 0.22% gap. One row per review record.
+- **So what:** Review coverage is high enough that review_score is usable as the consequence metric for delivery analysis without weighting for missingness. The join to orders must be left-joined from the order spine and cannot be assumed 1:1 until uniqueness is verified.
+- **Limits:** A net difference of 217 does not identify its cause. Three scenarios produce the same total: 217 orders genuinely -unreviewed, duplicate review_id values, or some orders carrying multiple reviews offset by more orders carrying none. Fan-out risk on join is therefore unresolved, not excluded — see points 2 and 7.
 
 ### 2. Uniqueness / PK
 - **Numbers:**
