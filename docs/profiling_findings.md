@@ -68,9 +68,9 @@ Rows = tables · Columns = the 8 points · **☐** applicable, not yet done · *
 
 | Table | Tier | 1 Vol | 2 PK | 3 Null | 4 Card | 5 Range | 6 Domain | 7 RefInt | 8 Rule |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `orders` | A | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| `orders` | A | ☑ | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
 | `order_items` | A | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| `order_reviews` | A | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| `order_reviews` | A | ☑ | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
 | `customers` | B | – | ☐ | ☐ | – | – | – | – | – |
 | `sellers` | B | – | ☐ | ☐ | – | – | – | – | – |
 | `products` | B | – | ☐ | ☐ | – | – | – | – | – |
@@ -108,14 +108,14 @@ Raw output from batched queries, stored once and referenced by ID from the table
 ### E2 — PK uniqueness & key nulls
 `sql/01b_keys.sql` · `Olist_stg.__TABLES__`
 
-|TABLE|Tier|Value|
-|---|---|---:|
-|order_items|A|112,650|
-|order_reviews|A|98,410|
-|orders|A|99,441|
-|customers|B|99,441|
-|products|B|32,951|
-|sellers|B|3,095|
+|TABLE|Tier|Size|PK|
+|---|---|---|---:|
+|order_items|A|112650|112650|
+|order_reviews|A|99224|98410|
+|orders|A|99441|99441|
+|customers|B|99441|99441|
+|products|B|32951|32951|
+|sellers|B|3095|3095|
 
 ### E3 — Null rates, all columns
 `sql/01c_nulls.sql` · *pending*
@@ -135,10 +135,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Row count describes volume only — it says nothing about duplicate IDs, nulls, or row validity. The match with `customers` is *consistent with* the per-order reading but does not prove it; confirmed via cardinality in point 4.
 
 ### 2. Uniqueness / PK
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** 99441 (source: E2)
+- **Reading:** The same number of PK and Volume. Every order_id is unique, no null, no duplication.
+- **So what:** It's safe to join spine in star schema, every fan-out is from the other boards, not the orders dataset.
+- **Limits:** N/A
 
 ### 3. Completeness / Null
 - **Numbers:**
@@ -189,10 +189,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Fulfilment outcome per line is unknown — how many units were delivered, stalled, or cancelled cannot be determined from this table. The 1.13 average hides the shape of the distribution between 1 and 21. It is also computed against all orders, including 775 that carry no line at all (quantified in point 7); measured only against orders that do have lines, the figure is 1.14.
 
 ### 2. Uniqueness / PK
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** dup_rows = 0 (source: E2)
+- **Reading:** Each PK is fully unique - row count equal distinct-key count. This confirm the compiste (order_id, order_item_id) holds.
+- **So what:** Being safe join anchor, no fan-out on its own. Their role as the "one" or "many size is fixed per relationship, verified in point 7.
+- **Limits:** Uniqueness of the key does not guarantee each row is a disintct business event.
 
 ### 3. Completeness / Null
 - **Numbers:**
@@ -243,10 +243,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** A net difference of 217 does not identify its cause. Three scenarios produce the same total: 217 orders genuinely -unreviewed, duplicate review_id values, or some orders carrying multiple reviews offset by more orders carrying none. Fan-out risk on join is therefore unresolved, not excluded — see points 2 and 7.
 
 ### 2. Uniqueness / PK
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** 98410 vs 99224, dup_rows 814 (source: E2)
+- **Reading:** review_id is not unique — 814 rows violate it. Both 789 review_ids repeat and 547 orders carry more than one review, so duplication runs in both directions, not one.
+- **So what:** review_id cannot be the join key to orders. The review dimension must be aggregated to order grain before joining (AVG(review_score), COUNT reviews) or it fans out. Logged as DQ-003.
+- **Limits:** dup_rows alone does not separate exact-duplicate rows from genuine multi-order reviews; resolution depends on that split (pending query).
 
 ### 3. Completeness / Null
 - **Numbers:**
@@ -293,10 +293,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 > PK: `customer_id` (per-order) · `customer_unique_id` = the real person key for repeat-buyer analysis
 
 ### 2. Uniqueness / PK
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** dup_rows = 0 (source: E2)
+- **Reading:** Each PK is fully unique - row count equal distinct-key count.
+- **So what:** Being safe join anchor, no fan-out on its own. Their role as the "one" or "many size is fixed per relationship, verified in point 7.
+- **Limits:** Uniqueness of the key does not guarantee each row is a disintct business event.
 
 ### 3. Completeness / Null (keys)
 - **Numbers:**
@@ -311,10 +311,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 > PK: `seller_id`
 
 ### 2. Uniqueness / PK
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** dup_rows = 0 (source: E2)
+- **Reading:** Each PK is fully unique - row count equal distinct-key count.
+- **So what:** Being safe join anchor, no fan-out on its own. Their role as the "one" or "many size is fixed per relationship, verified in point 7.
+- **Limits:** Uniqueness of the key does not guarantee each row is a disintct business event.
 
 ### 3. Completeness / Null (keys)
 - **Numbers:**
@@ -329,10 +329,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 > PK: `product_id`
 
 ### 2. Uniqueness / PK
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** dup_rows = 0 (source: E2)
+- **Reading:** Each PK is fully unique - row count equal distinct-key count.
+- **So what:** Being safe join anchor, no fan-out on its own. Their role as the "one" or "many size is fixed per relationship, verified in point 7.
+- **Limits:** Uniqueness of the key does not guarantee each row is a disintct business event.
 
 ### 3. Completeness / Null (keys)
 - **Numbers:**
