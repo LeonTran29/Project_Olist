@@ -120,6 +120,44 @@ Raw output from batched queries, stored once and referenced by ID from the table
 ### E3 — Null rates, all columns
 `sql/01c_nulls.sql` · *pending*
 
+|TABLE: orders|tbl|column_name|null_count|null_pct|
+|---|---|---|---|---:|
+|1|orders|order_delivered_customer_date|2965|2.98|
+|2|orders|order_delivered_carrier_date|1783|1.79|
+|3|orders|order_approved_at|160|0.16|
+|4|orders|order_id|0|0.0|
+|5|orders|customer_id|0|0.0|
+|6|orders|order_status|0|0.0|
+|7|orders|order_purchase_timestamp|0|0.0|
+|8|orders|order_estimated_delivery_date|0|0.0|
+
+|TABLE: order_items|tbl|column_name|null_count|null_pct|
+|---|---|---|---|---:|
+|1|order_items|order_id|0|0.0|
+|2|order_items|order_item_id|0|0.0|
+|3|order_items|product_id|0|0.0|
+|4|order_items|seller_id|0|0.0|
+|5|order_items|shipping_limit_date|0|0.0|
+|6|order_items|price|0|0.0|
+|7|order_items|freight_value|0|0.0|
+
+|TABLE: order_items|tbl|column_name|null_count|null_pct|
+|---|---|---|---|---:|
+|1| order_reviews | review_comment_title | 87656 | 88.15 |
+|2| order_reviews | review_comment_message | 58247 | 58.57 |
+|3| order_reviews | review_id | 0 | 0.00 |
+|4| order_reviews | order_id | 0 | 0.00 |
+|5| order_reviews | review_score | 0 | 0.00 |
+|6| order_reviews | review_creation_date | 0 | 0.00 |
+|7| order_reviews | review_answer_timestamp | 0 | 0.00 |
+
+|TABLEs|tbl|column_name|null_count|null_pct|
+|---|---|---|---|---:|
+|1|customers|customer_id|0|0.0|
+|2|customers|customer_unique_id|0|0.0|
+|3|products|product_id|0|0.0|
+|4|sellers|seller_id|0|0.0|
+
 ---
 
 # Tier A — full 8-point
