@@ -26,6 +26,13 @@ Finding template: Numbers -> Reading -> So what -> Limits.
 - **So what / Action**: Joining order_reviews to orders on reviews_id will fan-out.
 - **Fix location**: olist_stg
 - **Status**: Open
+---
 
+## DQ-004 · orders · timestamp chronology
+- **Numbers**: 15 issue orders
+- **Reading**: 15 orders have a delivery date while an earlier milestone is null: 1 missing carrier handoff, 14 missing approval. Below materiality for aggregates
+- **Impact**: milestone timestamps are not guaranteed complete-in-sequence — compute durations from endpoint dates directly, not by summing per-stage gaps. 
+- **Fix location**: olist_stg
+- **Status**: OPEN, no correction planned.
 
 
