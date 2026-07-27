@@ -20,6 +20,12 @@ Finding template: Numbers -> Reading -> So what -> Limits.
 - **Status**: Open
 ---
 
+## DQ-003: 814 noted rows (Not unique) in order_reviews table
+- **Numbers**: 814 dup_rows, 789 review_ids repeat, 547 orders carry multiple reviws.
+- **Reading**: 
+- **So what / Action**: Joining order_reviews to orders on reviews_id will fan-out.
+- **Fix location**: olist_stg
+- **Status**: Open
 
 
 
