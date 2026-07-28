@@ -233,10 +233,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Uniqueness of the key does not guarantee each row is a disintct business event.
 
 ### 3. Completeness / Null
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** 0 nulls in all columns (source: E3)
+- **Reading:** Every column is null-free — both the keys (order_id, product_id, seller_id) and the value fields (price, freight_value).
+- **So what:** The table joins cleanly on all three foreign keys, and revenue metrics can be computed without null-handling. Joining to orders must preserve exactly 112,650 rows — fewer means items were dropped, more means the order side duplicated.
+- **Limits:** Zero nulls confirms presence, not correctness — a price or key can be non-null yet wrong. Value ranges are checked in point 5.
 
 ### 4. Cardinality
 - **Numbers:**
@@ -337,10 +337,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Uniqueness of the key does not guarantee each row is a disintct business event.
 
 ### 3. Completeness / Null (keys)
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** 0 nulls across all keys (source: E3)
+- **Reading:** All primary and foreign keys return 0 nulls.
+- **So what:** It serve as dimension joins without dropping rows; no defensive null-handling is needed when attaching them to the fact table.
+- **Limits:** Only key columns were checked — non-key attributes are intentionally out of scope for delivery analysis. Null-free keys guarantee clean joins, not full completeness of every column.
 
 ---
 
@@ -355,10 +355,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Uniqueness of the key does not guarantee each row is a disintct business event.
 
 ### 3. Completeness / Null (keys)
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** 0 nulls across all keys (source: E3)
+- **Reading:** The primary key return 0 nulls.
+- **So what:** It serve as dimension joins without dropping rows; no defensive null-handling is needed when attaching them to the fact table.
+- **Limits:** Only key columns were checked — non-key attributes are intentionally out of scope for delivery analysis. Null-free keys guarantee clean joins, not full completeness of every column.
 
 ---
 
@@ -373,10 +373,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Uniqueness of the key does not guarantee each row is a disintct business event.
 
 ### 3. Completeness / Null (keys)
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** 0 nulls across all keys (source: E3)
+- **Reading:** The primary key return 0 nulls.
+- **So what:** It serve as dimension joins without dropping rows; no defensive null-handling is needed when attaching them to the fact table.
+- **Limits:** Only key columns were checked — non-key attributes are intentionally out of scope for delivery analysis. Null-free keys guarantee clean joins, not full completeness of every column.
 
 ---
 
