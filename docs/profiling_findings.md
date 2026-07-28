@@ -51,9 +51,9 @@ Every finding follows the fixed shape:
 | `orders` | A | Full 8-point | ☐ |
 | `order_items` | A | Full 8-point | ☐ |
 | `order_reviews` | A | Full 8-point | ☐ |
-| `customers` | B | PK + join-key nulls (pts 2, 3) | ☐ |
-| `sellers` | B | PK + join-key nulls (pts 2, 3) | ☐ |
-| `products` | B | PK + join-key nulls (pts 2, 3) | ☐ |
+| `customers` | B | PK + join-key nulls (pts 2, 3) | ☑ |
+| `sellers` | B | PK + join-key nulls (pts 2, 3) | ☑ |
+| `products` | B | PK + join-key nulls (pts 2, 3) | ☑ |
 | `geolocation` | C | Coverage only (pt 7) | ☐ |
 | `product_category_name` | C | Coverage only (pt 7) | ☐ |
 | `order_payments` | — | **Deferred** (payment flow = future project) | ⏸ |
