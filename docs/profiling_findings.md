@@ -158,6 +158,12 @@ Raw output from batched queries, stored once and referenced by ID from the table
 |3|products|product_id|0|0.0|
 |4|sellers|seller_id|0|0.0|
 
+### E4 _ Cardinality
+|tbl|column_name|card|
+|---|---|---:|
+|orders|order_status|8|
+|order_reviews|review_score|5|
+
 ---
 
 # Tier A — full 8-point
@@ -185,10 +191,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** A null delivery date does not distinguish an order still in transit from one that will never arrive — both are blank. Separating them requires cross-referencing order_status (point 6), so the cause of these nulls is unresolved, not excluded at this stage.
 
 ### 4. Cardinality
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** order_status = 8 distinct values (source: E4)
+- **Reading:** Low cardinality — order_status is a small controlled vocabulary, not a free-text or identifier field.
+- **So what:** Usable as a categorical filter and grouping dimension on the dashboard. The 8 values gate survivor-bias handling — the non-delivered states are the failure cases that must stay in the fact table.
+- **Limits:** Cardinality confirms how many values exist, not which ones or whether any are invalid — the value list and its validity are checked in point 6.
 
 ### 5. Range / Distribution
 - **Numbers:**
@@ -239,10 +245,7 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Zero nulls confirms presence, not correctness — a price or key can be non-null yet wrong. Value ranges are checked in point 5.
 
 ### 4. Cardinality
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- Not applicable — no categorical columns. The identifiers (order_id, product_id, seller_id) are covered in point 2; price and freight_value are continuous and profiled in point 5; order_item_id is a within-order sequence, not a category.
 
 ### 5. Range / Distribution
 - **Numbers:**
@@ -293,10 +296,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** The data captures what customers rated but rarely why — the reason behind a score is available for fewer than half of reviews. This constrains qualitative analysis, not the score-based delivery analysis in scope.
 
 ### 4. Cardinality
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** review_score = 5 distinct values (source: E4)
+- **Reading:** review_score is numeric but categorical — a fixed 1–5 rating scale, not a continuous measure.
+- **So what:** Groupable as the delivery consequence metric (e.g. share of 1-star vs 5-star by delivery lateness). Its 5-level structure makes it a clean dimension to cross with delivery outcomes.
+- **Limits:** 5 distinct values matches the expected scale, but cardinality alone does not confirm the values are exactly {1,2,3,4,5} with none outside range — verified in point 6.
 
 ### 5. Range / Distribution
 - **Numbers:**
