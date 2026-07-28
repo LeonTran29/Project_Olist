@@ -50,4 +50,5 @@ erDiagram
         string geolocation_zip_code_prefix
         float geolocation_lat
         float geolocation_lng
-    } ```
+    } 
+```
