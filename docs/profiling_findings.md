@@ -68,9 +68,9 @@ Rows = tables · Columns = the 8 points · **☐** applicable, not yet done · *
 
 | Table | Tier | 1 Vol | 2 PK | 3 Null | 4 Card | 5 Range | 6 Domain | 7 RefInt | 8 Rule |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `orders` | A | ☑ | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| `orders` | A | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ |
 | `order_items` | A | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| `order_reviews` | A | ☑ | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| `order_reviews` | A | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ | ☐ | ☐ |
 | `customers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `sellers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `products` | B | – | ☑ | ☑ | – | – | – | – | – |
@@ -179,10 +179,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** N/A
 
 ### 3. Completeness / Null
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** order_delivered_customer_date 2,965 null (2.98%) · order_delivered_carrier_date 1,783 (1.79%) · order_approved_at 160 (0.16%); all keys (order_id, customer_id), order_status, order_purchase_timestamp, order_estimated_delivery_date are null-free (source: E3)
+- **Reading:** Keys and the purchase/estimate timestamps are complete. Nulls cluster in the delivery-milestone timestamps and thin out earlier in the funnel (2,965 → 1,783 → 160), consistent with orders that stopped partway through fulfilment rather than random data loss.
+- **So what:** Delivery-time metrics can only be computed on orders that carry the relevant date, so the ~2,965 without a delivery date must be excluded from those calculations and the dashboard must state its denominator explicitly — otherwise on-time rate is silently measured on survivors. Durations must be computed from endpoint dates directly (customer_date − purchase_date), not by summing per-stage gaps, since milestones are not guaranteed complete-in-sequence (see DQ-004). These orders stay in the fact table — excluded from duration math, not from the dataset.
+- **Limits:** A null delivery date does not distinguish an order still in transit from one that will never arrive — both are blank. Separating them requires cross-referencing order_status (point 6), so the cause of these nulls is unresolved, not excluded at this stage.
 
 ### 4. Cardinality
 - **Numbers:**
@@ -287,10 +287,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** dup_rows alone does not separate exact-duplicate rows from genuine multi-order reviews; resolution depends on that split (pending query).
 
 ### 3. Completeness / Null
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** review_comment_title 87,656 null (88.15%), review_comment_message 58,247 null (58.57%); review_score 0 null (source: E3)
+- **Reading:** Comment text is mostly empty, yet every review carries a score. The gap is confined to free-text fields — the rating itself is always present.
+- **So what:** Score is usable across all 99,224 reviews as the delivery consequence metric, with no missingness to weight for. Empty comments are normal user behaviour (rating without typing), not a defect — no DQ. Any future text analysis runs on a ~41k subset, not the full set.
+- **Limits:** The data captures what customers rated but rarely why — the reason behind a score is available for fewer than half of reviews. This constrains qualitative analysis, not the score-based delivery analysis in scope.
 
 ### 4. Cardinality
 - **Numbers:**
