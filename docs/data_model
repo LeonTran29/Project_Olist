@@ -1,4 +1,4 @@
-```mermaid 
+``` mermaid 
 erDiagram
     customers ||--o{ orders : places
     orders ||--o{ order_items : contains
@@ -51,5 +51,4 @@ erDiagram
         float geolocation_lat
         float geolocation_lng
     } 
-```
 ```
