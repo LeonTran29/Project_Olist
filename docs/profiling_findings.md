@@ -376,11 +376,11 @@ Not applicable — no continuous columns. review_score is a discrete 1–5 scale
 - **Limits:** Score captures that a review is bad, not why — reason is only in comment text, which is 58% null. Low scores can't be attributed to delivery vs product quality from this column alone.
 
 ### 7. Referential integrity
-**7.4 · order_reviews → orders**
-- **Numbers:** 0 orphans (source: E7)
-- **Reading:** Every review resolves to an existing order.
-- **So what:** Reviews attach cleanly to the order grain (after the DQ-001 aggregation to one row per order).
-- **Limits:** Existence only; does not test whether the review belongs to the right order.
+**7.1 · order_reviews ↔ orders**
+- **Numbers:** 0 orphan reviews (forward); 768 orders with no review (reverse) (source: E7)
+- **Reading:** Every review resolves to an existing order. Reverse side: 768 orders received no review at all — customers who completed a purchase but never rated it.
+- **So what:** Reviews attach cleanly to the order grain (after DQ-001 aggregation to one row per order). The 768 unreviewed orders mean review_score covers 99.2% of orders — high enough to use as the delivery consequence metric without weighting, but the fact table must left-join reviews so these 768 keep a NULL score rather than dropping.
+- **Limits:** Existence only — does not test whether a review belongs to the right order. The 768 gap is unreviewed orders, not missing data.
 
 ### 8. Anomaly / business rule
 - **Numbers:**
