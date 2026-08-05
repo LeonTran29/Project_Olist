@@ -174,29 +174,27 @@ Raw output from batched queries, stored once and referenced by ID from the table
 |order_items|price|0.85|74.99|229.8|890.0|6735.0|
 |order_items|freight_value|0.0|16.26|34.04|84.38|409.68|
 
-### E6 _ Domain
-Table: orders
-|order_status|count|pct|
-|---|---|---:|
-|canceled|625|0.63|
-|delivered|96478|97.02|
-|invoiced|314|0.32|
-|processing|301|0.3|
-|shipped|1107|1.11|
-|unavailable|609|0.61|
-|created|5|0.01|
-|approved|2|0.0|
-|Total|99441|100.0|
+### E6 _ Domain Validity
+|tbl|order_status|count|pct|
+|---|---|---|---:|
+|orders|canceled|625|0.63|
+|orders|delivered|96478|97.02|
+|orders|invoiced|314|0.32|
+|orders|processing|301|0.3|
+|orders|shipped|1107|1.11|
+|orders|unavailable|609|0.61|
+|orders|created|5|0.01|
+|orders|approved|2|0.0|
+|orders|Total|99441|100.0|
 
-Table: order_reviews
-|review_score|count|pct|
-|---|---|---:|
-|1|11424|11.51|
-|2|3151|3.18|
-|3|8179|8.24|
-|4|19142|19.29|
-|5|57328|57.78|
-|Total|99224|100.0|
+|tbl|review_score|count|pct|
+|---|---|---|---:|
+|order_reviews|1|11424|11.51|
+|order_reviews|2|3151|3.18|
+|order_reviews|3|8179|8.24|
+|order_reviews|4|19142|19.29|
+|order_reviews|5|57328|57.78|
+|order_reviews|Total|99224|100.0|
 
 ---
 
