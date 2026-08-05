@@ -68,9 +68,9 @@ Rows = tables · Columns = the 8 points · **☐** applicable, not yet done · *
 
 | Table | Tier | 1 Vol | 2 PK | 3 Null | 4 Card | 5 Range | 6 Domain | 7 RefInt | 8 Rule |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `orders` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ |
-| `order_items` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ |
-| `order_reviews` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ |
+| `orders` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ |
+| `order_items` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ |
+| `order_reviews` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ |
 | `customers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `sellers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `products` | B | – | ☑ | ☑ | – | – | – | – | – |
@@ -174,6 +174,30 @@ Raw output from batched queries, stored once and referenced by ID from the table
 |order_items|price|0.85|74.99|229.8|890.0|6735.0|
 |order_items|freight_value|0.0|16.26|34.04|84.38|409.68|
 
+### E6 _ Domain
+Table: orders
+|order_status|count|pct|
+|---|---|---:|
+|canceled|625|0.63|
+|delivered|96478|97.02|
+|invoiced|314|0.32|
+|processing|301|0.3|
+|shipped|1107|1.11|
+|unavailable|609|0.61|
+|created|5|0.01|
+|approved|2|0.0|
+|Total|99441|100.0|
+
+Table: order_reviews
+|review_score|count|pct|
+|---|---|---:|
+|1|11424|11.51|
+|2|3151|3.18|
+|3|8179|8.24|
+|4|19142|19.29|
+|5|57328|57.78|
+|Total|99224|100.0|
+
 ---
 
 # Tier A — full 8-point
@@ -213,10 +237,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Min/max define the boundaries, not the density — they don't reveal whether orders are evenly spread or clustered. Monthly volume distribution is a separate check, deferred to the dashboard build.
 
 ### 6. Domain validity
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** 8 valid statuses, no typos or casing variants. delivered 96,478 (97.02%); non-delivered tail 2,963 (2.98%): shipped 1,107, canceled 625, unavailable 609, invoiced 314, processing 301, created 5, approved 2. (source: E6)
+- **Reading:** All values are legitimate Olist order states — the column is clean. Distribution is dominated by delivered.
+- **So what:** Usable as a filter dimension with no cleaning. The 2.98% non-delivered tail must stay in the fact table — dropping it measures on-time rate on survivors only.
+- **Limits:** Valid labels are not necessarily accurate — 14 orders contradict their delivery timestamp (see DQ-003). Where status and timestamp disagree, trust the timestamp.
 
 ### 7. Referential integrity
 - **Numbers:**
@@ -264,10 +288,11 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Quantiles describe the shape but not the cause of the tail — whether high prices concentrate in specific categories or sellers is a separate question for the analysis phase.
 
 ### 6. Domain validity
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+Not applicable — no categorical columns. Identifiers are covered in point 2, continuous fields in point 5; there is no fixed-vocabulary column to validate.
+- **Numbers:** N/A
+- **Reading:** N/A
+- **So what:** N/A
+- **Limits:** N/A
 
 ### 7. Referential integrity
 - **Numbers:**
@@ -319,10 +344,10 @@ Not applicable — no continuous columns. review_score is a discrete 1–5 scale
 - **Limits:** N/A
 
 ### 6. Domain validity
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** Exactly 5 values (1–5), none out of range or null. score 5 = 57.78%, 4 = 19.29%, 3 = 8.24%, 2 = 3.18%, 1 = 11.51%.
+- **Reading:** review_score is fully valid within the 1–5 domain. Distribution skews high — 77% are 4–5 stars — with a notable 11.5% at 1 star.
+- **So what:** Usable as the delivery consequence metric across all reviews. The high-skew baseline means the 1-star cluster is the signal to trace back against late deliveries — the core link of this project.
+- **Limits:** Score captures that a review is bad, not why — reason is only in comment text, which is 58% null. Low scores can't be attributed to delivery vs product quality from this column alone.
 
 ### 7. Referential integrity
 - **Numbers:**
