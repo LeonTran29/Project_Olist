@@ -207,7 +207,7 @@ Raw output from batched queries, stored once and referenced by ID from the table
 | orders → order_reviews | reverse | orders with no review | 768 |
 | orders → customers | forward | orders with no customer | 0 |
 
-## E8 _
+## E8 _ Anomaly / business rule
 
 
 ---
