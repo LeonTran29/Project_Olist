@@ -35,4 +35,10 @@ Finding template: Numbers -> Reading -> So what -> Limits.
 - **Fix location**: olist_stg
 - **Status**: OPEN, no correction planned.
 
+## DQ-005 · orders · status–delivery date consistency
+- **Numbers**: 14 contradicting orders
+- **Reading**: 14 orders show a mismatch between order_status and delivery date: 8 marked delivered with a null delivery date, 6 non-delivered carrying a delivery date. Below materiality for aggregates (14 of 99,441).
+- **Impact**: order_status and delivery timestamps are not fully consistent — where they disagree, trust the timestamp (the measured event) over the status label; delivered-status orders without a date drop out of duration metrics naturally.
+- **Fix location**: olist_stg
+- **Status**: OPEN, no correction planned
 
