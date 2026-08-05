@@ -196,6 +196,20 @@ Raw output from batched queries, stored once and referenced by ID from the table
 |order_reviews|5|57328|57.78|
 |order_reviews|Total|99224|100.0|
 
+## E7 _ Referential integrity
+| Relationship | Direction | Metric | Count |
+|---|---|---|---:|
+| order_items → orders | forward | orphan items (item with no order) | 0 |
+| orders → order_items | reverse | orders with no item | 775 |
+| order_items → products | forward | orphan items (item with no product) | 0 |
+| order_items → sellers | forward | orphan items (item with no seller) | 0 |
+| order_reviews → orders | forward | orphan reviews (review with no order) | 0 |
+| orders → order_reviews | reverse | orders with no review | 768 |
+| orders → customers | forward | orders with no customer | 0 |
+
+## E8 _
+
+
 ---
 
 # Tier A — full 8-point
@@ -242,7 +256,7 @@ Raw output from batched queries, stored once and referenced by ID from the table
 
 ### 7. Referential integrity
 **7.1 · orders → customers**
-- **Numbers:** 0 orphans (source: E2)
+- **Numbers:** 0 orphans (source: E7)
 - **Reading:** Every order resolves to an existing customer.
 - **So what:** Customer dimension joins without row loss.
 - **Limits:** Existence only.
@@ -295,17 +309,17 @@ Not applicable — no categorical columns. Identifiers are covered in point 2, c
 
 ### 7. Referential integrity
 **7.1 · order_items → orders**
-- **Numbers:** 0 orphans (forward); 775 orders without items (reverse)
+- **Numbers:** 0 orphans (forward); 775 orders without items (reverse) (source: E7)
 - **Reading:** No item points to a non-existent order. Reverse side: 775 orders carry no line item — 99% unavailable (603) / canceled (164), expected for incomplete orders; 8 anomalous (created/invoiced/shipped) that reached later stages without items.
 - **So what:** Mart must left-join order_items onto the orders spine — inner join drops the 775 and causes survivor bias. Revenue for them = 0, not missing. The 767 incomplete orders are kept as unmet-demand signal.
 - **Limits:** The 8 anomalies have no confirmed cause; mid-process capture vs data-entry gap indistinguishable here.
 **7.2 · order_items → products**
-- **Numbers:** 0 orphans
+- **Numbers:** 0 orphans (source: E7)
 - **Reading:** Every item resolves to an existing product.
 - **So what:** Safe to join product attributes (category, dimensions) onto the item grain.
 - **Limits:** Confirms the product exists, not that it's the correct one for the item.
 **7.3 · order_items → sellers**
-- **Numbers:** 0 orphans
+- **Numbers:** 0 orphans (source: E7)
 - **Reading:** Every item resolves to an existing seller.
 - **So what:** Safe to join seller attributes (state, location) onto the item grain — needed for the seller→customer distance analysis.
 - **Limits:** Confirms the seller exists, not that the link is correct.
@@ -361,7 +375,7 @@ Not applicable — no continuous columns. review_score is a discrete 1–5 scale
 
 ### 7. Referential integrity
 **7.4 · order_reviews → orders**
-- **Numbers:** 0 orphans
+- **Numbers:** 0 orphans (source: E7)
 - **Reading:** Every review resolves to an existing order.
 - **So what:** Reviews attach cleanly to the order grain (after the DQ-001 aggregation to one row per order).
 - **Limits:** Existence only; does not test whether the review belongs to the right order.
