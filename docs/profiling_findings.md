@@ -207,7 +207,7 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Cardinality confirms how many values exist, not which ones or whether any are invalid — the value list and its validity are checked in point 6.
 
 ### 5. Range / Distribution
-- **Numbers:** Purchase window 2016-09-04 → 2018-10-17 (~25 months); delivered_before_purchase = 0
+- **Numbers:** Purchase window 2016-09-04 → 2018-10-17 (~25 months); delivered_before_purchase = 0 (source: E5)
 - **Reading:** Orders span roughly two years with no chronology violation — no delivery precedes its purchase. Coverage is uneven at the edges: 2016 contributes very few orders (Olist's early ramp-up), and the series ends abruptly in late 2018.
 - **So what:** Time-series charts must annotate or trim the sparse 2016 tail so it doesn't read as a volume collapse; the analysis window is effectively ~2017 to mid-2018. The zero chronology violations confirm delivery_days can be computed by straight date subtraction without guarding against negative values.
 - **Limits:** Min/max define the boundaries, not the density — they don't reveal whether orders are evenly spread or clustered. Monthly volume distribution is a separate check, deferred to the dashboard build.
@@ -258,7 +258,7 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - Not applicable — no categorical columns. The identifiers (order_id, product_id, seller_id) are covered in point 2; price and freight_value are continuous and profiled in point 5; order_item_id is a within-order sequence, not a category.
 
 ### 5. Range / Distribution
-- **Numbers:** price median 74.99, p90 229.8, p99 890, max 6,735 (min 0.85). freight_value median 16.26, p99 84.38, max 409.68 (min 0)
+- **Numbers:** price median 74.99, p90 229.8, p99 890, max 6,735 (min 0.85). freight_value median 16.26, p99 84.38, max 409.68 (min 0) (source: E5)
 - **Reading:** Both are heavily right-skewed. Price max is ~7.5× p99, so a tiny tail of high-value items sits far above a low typical value (~75). Freight follows the same shape; min freight = 0 (likely free-shipping, not missing).
 - **So what:** Value and freight metrics must use median, not mean — the mean is dragged by the tail and would misstate the typical order. The high-value tail is legitimate (not a data error), so it stays in the fact table; it only needs awareness when averaging. Free-shipping (freight = 0) should be confirmed as intentional before treating it as a category.
 - **Limits:** Quantiles describe the shape but not the cause of the tail — whether high prices concentrate in specific categories or sellers is a separate question for the analysis phase.
