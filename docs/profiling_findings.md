@@ -68,9 +68,9 @@ Rows = tables · Columns = the 8 points · **☐** applicable, not yet done · *
 
 | Table | Tier | 1 Vol | 2 PK | 3 Null | 4 Card | 5 Range | 6 Domain | 7 RefInt | 8 Rule |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `orders` | A | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ | ☐ |
-| `order_items` | A | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ | ☐ |
-| `order_reviews` | A | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ | ☐ |
+| `orders` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ |
+| `order_items` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ |
+| `order_reviews` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ |
 | `customers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `sellers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `products` | B | – | ☑ | ☑ | – | – | – | – | – |
