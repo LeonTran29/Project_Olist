@@ -255,10 +255,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Valid labels are not necessarily accurate — 14 orders contradict their delivery timestamp (see DQ-003). Where status and timestamp disagree, trust the timestamp.
 
 ### 7. Referential integrity
-**7.1 · orders → customers**
-- **Numbers:** 0 orphans (source: E7)
-- **Reading:** Every order resolves to an existing customer.
-- **So what:** Customer dimension joins without row loss.
+**7.1 orders ↔ customers**
+- **Numbers:** 0 orphan orders (forward); 0 customers without orders (reverse) (source: E7)
+- **Reading:** Every order resolves to a customer, and every customer has exactly one order — confirming the 1:1 relationship (customer_id is per-order, established in points 2 and 4).
+- **So what:** Customer dimension joins without row loss in either direction.
 - **Limits:** Existence only.
 
 ### 8. Anomaly / business rule
@@ -308,20 +308,20 @@ Not applicable — no categorical columns. Identifiers are covered in point 2, c
 - **Limits:** N/A
 
 ### 7. Referential integrity
-**7.1 · order_items → orders**
+**7.1 · order_items ↔ orders**
 - **Numbers:** 0 orphans (forward); 775 orders without items (reverse) (source: E7)
 - **Reading:** No item points to a non-existent order. Reverse side: 775 orders carry no line item — 99% unavailable (603) / canceled (164), expected for incomplete orders; 8 anomalous (created/invoiced/shipped) that reached later stages without items.
 - **So what:** Mart must left-join order_items onto the orders spine — inner join drops the 775 and causes survivor bias. Revenue for them = 0, not missing. The 767 incomplete orders are kept as unmet-demand signal.
 - **Limits:** The 8 anomalies have no confirmed cause; mid-process capture vs data-entry gap indistinguishable here.
 
-**7.2 · order_items → products**
-- **Numbers:** 0 orphans (source: E7)
+**7.2 · order_items ↔ products**
+- **Numbers:** 0 orphan orders (forward); 0 products (reverse) (source: E7)
 - **Reading:** Every item resolves to an existing product.
 - **So what:** Safe to join product attributes (category, dimensions) onto the item grain.
 - **Limits:** Confirms the product exists, not that it's the correct one for the item.
 
-**7.3 · order_items → sellers**
-- **Numbers:** 0 orphans (source: E7)
+**7.3 · order_items ↔ sellers**
+- **Numbers:** 0 orphan orders (forward); 0 sellers (reverse) (source: E7)
 - **Reading:** Every item resolves to an existing seller.
 - **So what:** Safe to join seller attributes (state, location) onto the item grain — needed for the seller→customer distance analysis.
 - **Limits:** Confirms the seller exists, not that the link is correct.
