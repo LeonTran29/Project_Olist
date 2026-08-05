@@ -68,9 +68,9 @@ Rows = tables · Columns = the 8 points · **☐** applicable, not yet done · *
 
 | Table | Tier | 1 Vol | 2 PK | 3 Null | 4 Card | 5 Range | 6 Domain | 7 RefInt | 8 Rule |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `orders` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ |
-| `order_items` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ |
-| `order_reviews` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ |
+| `orders` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ |
+| `order_items` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ |
+| `order_reviews` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ |
 | `customers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `sellers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `products` | B | – | ☑ | ☑ | – | – | – | – | – |
@@ -241,10 +241,11 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Valid labels are not necessarily accurate — 14 orders contradict their delivery timestamp (see DQ-003). Where status and timestamp disagree, trust the timestamp.
 
 ### 7. Referential integrity
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+**7.1 · orders → customers**
+- **Numbers:** 0 orphans (source: E2)
+- **Reading:** Every order resolves to an existing customer.
+- **So what:** Customer dimension joins without row loss.
+- **Limits:** Existence only.
 
 ### 8. Anomaly / business rule
 - **Numbers:**
@@ -293,10 +294,21 @@ Not applicable — no categorical columns. Identifiers are covered in point 2, c
 - **Limits:** N/A
 
 ### 7. Referential integrity
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+**7.1 · order_items → orders**
+- **Numbers:** 0 orphans (forward); 775 orders without items (reverse)
+- **Reading:** No item points to a non-existent order. Reverse side: 775 orders carry no line item — 99% unavailable (603) / canceled (164), expected for incomplete orders; 8 anomalous (created/invoiced/shipped) that reached later stages without items.
+- **So what:** Mart must left-join order_items onto the orders spine — inner join drops the 775 and causes survivor bias. Revenue for them = 0, not missing. The 767 incomplete orders are kept as unmet-demand signal.
+- **Limits:** The 8 anomalies have no confirmed cause; mid-process capture vs data-entry gap indistinguishable here.
+**7.2 · order_items → products**
+- **Numbers:** 0 orphans
+- **Reading:** Every item resolves to an existing product.
+- **So what:** Safe to join product attributes (category, dimensions) onto the item grain.
+- **Limits:** Confirms the product exists, not that it's the correct one for the item.
+**7.3 · order_items → sellers**
+- **Numbers:** 0 orphans
+- **Reading:** Every item resolves to an existing seller.
+- **So what:** Safe to join seller attributes (state, location) onto the item grain — needed for the seller→customer distance analysis.
+- **Limits:** Confirms the seller exists, not that the link is correct.
 
 ### 8. Anomaly / business rule
 - **Numbers:**
@@ -348,10 +360,11 @@ Not applicable — no continuous columns. review_score is a discrete 1–5 scale
 - **Limits:** Score captures that a review is bad, not why — reason is only in comment text, which is 58% null. Low scores can't be attributed to delivery vs product quality from this column alone.
 
 ### 7. Referential integrity
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+**7.4 · order_reviews → orders**
+- **Numbers:** 0 orphans
+- **Reading:** Every review resolves to an existing order.
+- **So what:** Reviews attach cleanly to the order grain (after the DQ-001 aggregation to one row per order).
+- **Limits:** Existence only; does not test whether the review belongs to the right order.
 
 ### 8. Anomaly / business rule
 - **Numbers:**
