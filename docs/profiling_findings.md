@@ -207,6 +207,18 @@ Raw output from batched queries, stored once and referenced by ID from the table
 | orders → order_reviews | reverse | orders with no review | 768 |
 | orders → customers | forward | orders with no customer | 0 |
 
+#### product_names_relationship
+|total_categories|translated_cat|
+|---|---:|
+|73|71|
+
+|category|products|
+|---|---:|
+|no_category|610|
+|portateis_cozinha_e_preparadores_de_alimentos|10|
+|pc_gamer|3|
+
+
 ## E8 _ Anomaly / business rule
 
 
@@ -439,10 +451,10 @@ Not applicable — no continuous columns. review_score is a discrete 1–5 scale
 - **Limits:** Uniqueness of the key does not guarantee each row is a disintct business event.
 
 ### 3. Completeness / Null (keys)
-- **Numbers:** 0 nulls across all keys (source: E3)
-- **Reading:** The primary key return 0 nulls.
-- **So what:** It serve as dimension joins without dropping rows; no defensive null-handling is needed when attaching them to the fact table.
-- **Limits:** Only key columns were checked — non-key attributes are intentionally out of scope for delivery analysis. Null-free keys guarantee clean joins, not full completeness of every column.
+- **Numbers:** Keys (product_id) 0 nulls (source: E3). product_category_name 610 nulls (1.9%) — surfaced later during the point-7 translation join. (source: E7)
+- **Reading:** The primary key is complete. But product_category_name — needed as a delivery-analysis dimension — has 610 products with no category assigned.
+- **So what:** product_id serves as a clean dimension join with no null-handling. The 610 uncategorized products, however, would silently drop from any category-based breakdown; assign them an 'uncategorized' label in the mart so they stay visible.
+- **Limits:** Other non-key attributes (weight, dimensions) remain unchecked — out of scope for delivery analysis. Category was initially treated the same but proved in-scope once it became a grouping dimension.
 
 ---
 
@@ -465,10 +477,10 @@ Not applicable — no continuous columns. review_score is a discrete 1–5 scale
 > Translation lookup: `product_category_name` → `product_category_name_english`
 
 ### 7. Referential integrity / coverage
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** 73 categories in products, 71 translated. 2 genuine categories lack an English translation: portateis_cozinha_e_preparadores_de_alimentos (10 products), pc_gamer (3 products) — 13 products total. (Source: E7)
+- **Reading:** Translation coverage is 97% (71/73). The 2 gaps are specific, named categories the translation table simply doesn't include — not random loss. Impact is tiny: 13 products across both.
+- **So what:** These 13 products return NULL on the English-name join. In the mart, use COALESCE(english_name, original_name) so they display the Portuguese label instead of blank, or tag them unmapped. Too few to distort any category-level aggregate.
+- **Limits:** Coverage confirms which categories are untranslated and how many products they touch, but not why the translation table omits them. The 13-product impact is bounded and immaterial.
 
 ---
 
