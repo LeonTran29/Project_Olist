@@ -54,8 +54,8 @@ Every finding follows the fixed shape:
 | `customers` | B | PK + join-key nulls (pts 2, 3) | ☑ |
 | `sellers` | B | PK + join-key nulls (pts 2, 3) | ☑ |
 | `products` | B | PK + join-key nulls (pts 2, 3) | ☑ |
-| `geolocation` | C | Coverage only (pt 7) | ☐ |
-| `product_category_name` | C | Coverage only (pt 7) | ☐ |
+| `geolocation` | C | Coverage only (pt 7) | ☑ |
+| `product_category_name` | C | Coverage only (pt 7) | ☑ |
 | `order_payments` | — | **Deferred** (payment flow = future project) | ⏸ |
 
 > Mark ☑ when the section below is filled and committed.
@@ -74,8 +74,8 @@ Rows = tables · Columns = the 8 points · **☐** applicable, not yet done · *
 | `customers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `sellers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `products` | B | – | ☑ | ☑ | – | – | – | – | – |
-| `geolocation` | C | – | – | – | – | – | – | ☐ | – |
-| `product_category_name` | C | – | – | – | – | – | – | ☐ | – |
+| `geolocation` | C | – | – | – | – | – | – | ☑ | – |
+| `product_category_name` | C | – | – | – | – | – | – | ☑ | – |
 | `order_payments` | ⏸ | – | – | – | – | – | – | – | – |
 
 **Why the blanks:** Tier B tables are dimensions — their only job is to join cleanly, so key integrity (2, 3) is sufficient. Tier C tables are lookups where the sole risk is incomplete coverage (7); `geolocation` in particular has no primary key by design, making point 2 inapplicable rather than unmeasured. `order_payments` is deferred: its grain is payment-level, not order-level, and the payment flow is scoped to a future project.
