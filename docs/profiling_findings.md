@@ -218,6 +218,11 @@ Raw output from batched queries, stored once and referenced by ID from the table
 |portateis_cozinha_e_preparadores_de_alimentos|10|
 |pc_gamer|3|
 
+#### geolocation_relationship
+|relationship|total_zip|matched_zip|
+|---|---|---:|
+|customers-geo|14994|14837|
+|sellers-geo|2246|2239|
 
 ## E8 _ Anomaly / business rule
 
@@ -465,10 +470,10 @@ Not applicable — no continuous columns. review_score is a discrete 1–5 scale
 > Join key: `geolocation_zip_code_prefix` — many-to-one against customer/seller zip; multiple rows per prefix expected
 
 ### 7. Referential integrity / coverage
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** customers 14,994 zip prefixes, 14,837 matched (98.95%), 157 unmatched. sellers 2,246 zip prefixes, 2,239 matched (99.69%), 7 unmatched. (source: E7)
+- **Reading:** Both sides resolve almost fully to coordinates — 157 customer prefixes (1.05%) and 7 seller prefixes (0.31%) have none. Not random loss; likely remote or newer postal areas absent from the geolocation reference. Unit is zip prefix, not individual customers/sellers.
+- **So what:** Seller-to-customer distance analysis is viable — ~99% of both sides geolocate. Unmatched prefixes yield NULL distance; handle with a state-level centroid fallback or exclude with a stated denominator, don't let them drop silently. Too few to distort geographic aggregates.
+- **Limits:** Coverage confirms a coordinate exists for the prefix, not that it's accurate. Geolocation holds many points per prefix (1M rows / ~19K prefixes) — the mart must aggregate to one representative centroid per prefix before computing distance, or distance values are ambiguous.
 
 ---
 
