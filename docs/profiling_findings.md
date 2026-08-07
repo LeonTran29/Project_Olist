@@ -48,9 +48,9 @@ Every finding follows the fixed shape:
 
 | Table | Tier | Treatment | Status |
 |---|---|---|---|
-| `orders` | A | Full 8-point | ☐ |
-| `order_items` | A | Full 8-point | ☐ |
-| `order_reviews` | A | Full 8-point | ☐ |
+| `orders` | A | Full 8-point | ☑ |
+| `order_items` | A | Full 8-point | ☑ |
+| `order_reviews` | A | Full 8-point | ☑ |
 | `customers` | B | PK + join-key nulls (pts 2, 3) | ☑ |
 | `sellers` | B | PK + join-key nulls (pts 2, 3) | ☑ |
 | `products` | B | PK + join-key nulls (pts 2, 3) | ☑ |
@@ -69,8 +69,8 @@ Rows = tables · Columns = the 8 points · **☐** applicable, not yet done · *
 | Table | Tier | 1 Vol | 2 PK | 3 Null | 4 Card | 5 Range | 6 Domain | 7 RefInt | 8 Rule |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | `orders` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ |
-| `order_items` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ |
-| `order_reviews` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ |
+| `order_items` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ |
+| `order_reviews` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ |
 | `customers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `sellers` | B | – | ☑ | ☑ | – | – | – | – | – |
 | `products` | B | – | ☑ | ☑ | – | – | – | – | – |
@@ -228,6 +228,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 |approved_before_purchase|carrier_before_approved|delivered_before_carrier|delivered_before_purchase|delivered_no_carrier|delivered_no_approval|delivered_no_purchase|
 |---|---|---|---|---|---|---:|
 |0|1359|23|0|1|14|0|
+
+|timestamp_before_creation|
+|---:|
+|0|
 
 ---
 
@@ -403,10 +407,10 @@ Not applicable — no continuous columns. review_score is a discrete 1–5 scale
 - **Limits:** Existence only — does not test whether a review belongs to the right order. The 768 gap is unreviewed orders, not missing data.
 
 ### 8. Anomaly / business rule
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** answer_before_creation = 0 — no review answered before it was created. (source: E8)
+- **Reading:** The one testable ordering rule holds: review_answer_timestamp never precedes review_creation_date. review_score is a standalone rating with no cross-column rule to check.
+- **So what:** Review timestamps are internally consistent; the creation-to-answer gap could serve as a response-time metric later if useful. No anomaly to carry into the mart.
+- **Limits:** Only within-table ordering was tested. A cross-table rule — e.g. review creation date versus the order's delivery date — belongs to the mart, where the two tables join.
 
 ---
 
@@ -507,3 +511,11 @@ Known Olist quirks are treated as hypotheses to **confirm by query**, not assume
 - [ ] Timestamp columns imported as STRING → would break `is_late` / `days_vs_promise` *(verify `orders` date columns before building mart)*
 - [ ] `customer_id` is per-order, not per-person → use `customer_unique_id` for repeat-buyer logic
 - [ ] `geolocation` has multiple rows per zip prefix → aggregate before joining to avoid fan-out
+
+## Confirmed data characteristics
+
+- [x] Zip-code prefix loses leading zeros as INT64 — **confirmed**, fixed at stg via CAST + LPAD (DQ-001/002)
+- [x] Timestamp columns imported as STRING — **disproven**: all `orders` date columns are TIMESTAMP; `is_late`/`days_vs_promise` need no parsing
+- [x] `customer_id` is per-order, not per-person — **confirmed** (customers = orders = 99,441; cardinality = row count). Use `customer_unique_id` for repeat-buyer logic
+- [x] `geolocation` has multiple rows per zip prefix — **confirmed** (1M rows / ~19K prefixes). Aggregate to one centroid per prefix before joining
+
