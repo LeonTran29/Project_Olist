@@ -68,7 +68,7 @@ Rows = tables · Columns = the 8 points · **☐** applicable, not yet done · *
 
 | Table | Tier | 1 Vol | 2 PK | 3 Null | 4 Card | 5 Range | 6 Domain | 7 RefInt | 8 Rule |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `orders` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ |
+| `orders` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ |
 | `order_items` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ |
 | `order_reviews` | A | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☑ | ☐ |
 | `customers` | B | – | ☑ | ☑ | – | – | – | – | – |
@@ -225,7 +225,9 @@ Raw output from batched queries, stored once and referenced by ID from the table
 |sellers-geo|2246|2239|
 
 ## E8 _ Anomaly / business rule
-
+|approved_before_purchase|carrier_before_approved|delivered_before_carrier|delivered_before_purchase|delivered_no_carrier|delivered_no_approval|delivered_no_purchase|
+|---|---|---|---|---|---|---:|
+|0|1359|23|0|1|14|0|
 
 ---
 
@@ -279,10 +281,10 @@ Raw output from batched queries, stored once and referenced by ID from the table
 - **Limits:** Existence only.
 
 ### 8. Anomaly / business rule
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+- **Numbers:** Tested 6 business rules on milestone ordering. Violations: delivered_before_purchase 0 · approved_before_purchase 0 · carrier_before_approved 1,359 · delivered_before_carrier 23 · delivered_no_carrier 1 · delivered_no_approval 14. (source: E8)
+- **Reading:** Two clean rules (nothing delivered or approved before purchase) confirm the purchase timestamp is a reliable anchor. The 1,359 carrier < approved cases are systematic with small gaps (hours to ~1 day) — not errors, but evidence that approval and carrier handoff run as parallel processes, not a strict sequence. The 23 delivered < carrier cases are different: gaps of several days, physically impossible (customer received before carrier pickup), so a genuine inconsistency. The 15 missing-milestone cases (1 carrier, 14 approval) are gaps in recording, not sequence errors.
+- **So what:** Milestones are not strictly sequential and not always complete, so delivery duration must be computed from endpoint dates only (delivered_customer_date − purchase_timestamp), never by summing per-stage gaps — intermediate stages can be out of order or null. The purchase and customer-delivery timestamps are the two trustworthy anchors. All anomalies are immaterial to aggregates (≤1.4%) and stay in the fact table.
+- **Limits:** The data shows that milestones conflict, not why or which timestamp is wrong — resolving that needs Olist's process documentation, which isn't available. Rules tested cover ordering and completeness; a violation type not hypothesized would pass unnoticed.
 
 ---
 
