@@ -346,10 +346,11 @@ Not applicable — no categorical columns. Identifiers are covered in point 2, c
 - **Limits:** Confirms the seller exists, not that the link is correct.
 
 ### 8. Anomaly / business rule
-- **Numbers:**
-- **Reading:**
-- **So what:**
-- **Limits:**
+Not applicable — no multi-column business rule to test. order_items has no timestamp sequence or cross-field logic like orders. Value sanity (price/freight ≥ 0) was covered in point 5; identifiers in points 2 and 7.
+- **Numbers:** N/A
+- **Reading:** N/A
+- **So what:** N/A
+- **Limits:** N/A
 
 ---
 
