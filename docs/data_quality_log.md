@@ -34,6 +34,7 @@ Finding template: Numbers -> Reading -> So what -> Limits.
 - **Impact**: milestone timestamps are not guaranteed complete-in-sequence — compute durations from endpoint dates directly, not by summing per-stage gaps. 
 - **Fix location**: olist_stg
 - **Status**: OPEN, no correction planned.
+---
 
 ## DQ-005 · orders · status–delivery date consistency
 - **Numbers**: 14 contradicting orders
