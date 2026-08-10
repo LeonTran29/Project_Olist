@@ -51,6 +51,9 @@ Populations differ from table grain (99,441); state the denominator per question
 - Q3 correlation: all delivered orders — on-time orders are the control group,
   not noise to filter out.
 - Q5 stuck: delivered_customer_date IS NULL, excluding order_status = 'canceled'.
+###
+- There are orders with no timestamp_delivered_at but the status is "delivered"
+###
 
 ### For fct_order_items (Q4: category delivery risk)
 
