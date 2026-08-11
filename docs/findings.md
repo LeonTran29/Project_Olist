@@ -20,21 +20,56 @@ Tables: `fct_order_delivery` (order grain, 99,441) · `fct_order_items` (line gr
 
 **Query:**
 ```sql
--- TODO
+WITH lead_quan AS
+(SELECT
+  APPROX_QUANTILES(lead_time,100) as pct
+  ,COUNT(*) AS N
+  ,ROUND(AVG(lead_time),2) AS AVG
+FROM `myprojectolist.Olist_mart.fct_order_delivery`
+WHERE lead_time >= 0)
+SELECT 
+  l.N as COUNT
+  ,l.AVG as Average
+  ,l.pct[OFFSET(0)] as min
+  ,l.pct[OFFSET(25)] as Q25
+  ,l.pct[OFFSET(50)] as median
+  ,l.pct[OFFSET(75)] as Q75
+  ,l.pct[OFFSET(100)] as max
+  ,l.pct[OFFSET(90)] as P90
+  ,l.pct[OFFSET(99)] as P99
+FROM lead_quan l
 ```
 
 **Numbers:**
-> _(fill after running)_
+> | COUNT | Average | min | Q25 | median | Q75 | P90 | P99 | max |
+> |---|---|---|---|---|---|---|---|---|
+> | 96,476 | 12.09 | 0 | 6 | 10 | 15 | 23 | 46 | 209 |
 
 **Reading:**
->
+> 96,476 orders have a completed `order_delivered_customer_date` timestamp
+> (the measurable population for lead time).
+> Lead time ranges from 0 days (same-day) to 209 days (max).
+> The typical order is delivered in ~10 days (median); the middle 50% of orders
+> fall between 6 and 15 days (Q25–Q75).
+> Average is 12.09 days — higher than the median, an early sign of right-skew.
+> 90% of orders arrive within 23 days, 99% within 46 days.
 
 **So what:**
->
+> The lead-time distribution is right-skewed: the bulk sits low (median 10 days)
+> with a long tail stretching right. The gaps between percentiles widen toward
+> the tail — median→Q75: 5 days, Q75→P90: 8, P90→P99: 23, P99→max: 163 —
+> confirming a small group of very slow deliveries pulls the mean above the median.
+> 90% of orders arrive within 23 days; only 1% exceed 46 days, up to 209.
+> This long tail is where delivery risk likely concentrates — ***flagged for closer
+> investigation at Q5 (stuck orders) and Q2 (late vs promise), rather than
+> concluded as risk here.***
 
 **Limits:**
->
-
+> The tail beyond P90 is not yet explained: ~965 orders (1%) exceed 46 days,
+> max 209. Cause unknown — could be genuinely stuck orders or timestamp
+> artifacts. Revisit at Q5 (stuck) and Q2 (late vs promise); if neither
+> accounts for it, treat as a data-quality issue.
+> (lead_time < 0 already checked: 0 orders — purchase→delivered endpoint clean.)
 ---
 
 ## Q2 — Lateness: what share of delivered orders arrive later than promised, and where does it concentrate?
