@@ -65,7 +65,7 @@ FROM lead_quan l
 > concluded as risk here.***
 
 **Limits:**
-> The tail beyond P90 is not yet explained: ~965 orders (1%) exceed 46 days,
+> The tail beyond P90 is not yet explained: ~880 orders (0.91%) exceed 46 days,
 > max 209. Cause unknown — could be genuinely stuck orders or timestamp
 > artifacts. Revisit at Q5 (stuck) and Q2 (late vs promise); if neither
 > accounts for it, treat as a data-quality issue.
