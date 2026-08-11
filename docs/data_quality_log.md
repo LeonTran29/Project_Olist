@@ -56,3 +56,29 @@ Finding template: Numbers -> Reading -> So what -> Limits.
 - **Impact**: Reinforces endpoint-based duration (delivered_customer − purchase); the carrier timestamp is unreliable for these orders. Immaterial to aggregates (23 of 99,441).
 - **Fix location**: none — handle in mart logic
 - **Status**: OPEN, no correction planned
+
+---
+
+### DQ-007 — Status/timestamp mismatch: delivered without timestamp
+
+**Numbers:** 8 orders with `order_status = 'delivered'` but null `order_delivered_customer_date`.
+Identification:
+```sql
+order_status = 'delivered'
+AND order_delivered_customer_date IS NULL
+```
+
+**Reading:** Status marks the order as delivered, but the delivery timestamp is missing — a status/timestamp contradiction, not a delivery that never happened. Likely a status-update gap at the source, not a data-model defect.
+
+**Impact:** All time-based measures (`lead_time`, `days_vs_promise`, Q3 correlation) are computed from timestamps. These 8 orders yield no valid duration, so counting "delivered" by status overstates the measurable population vs counting by timestamp. Same condition surfaces at item grain in `fct_order_items` as `is_late = 'Not_delivered'` (2,454 order-lines), kept as a distinct label rather than folded into `'Good'`.
+
+**Fix location:** Metric layer, not the build. Define "delivered" = `order_delivered_customer_date IS NOT NULL` (not `order_status`); exclude this group from time-based measures (Q1/Q2/Q3). Rows are retained in the table (grain preserved, still visible to Q5). The `order_id` list is reproducible from the identification rule — not enumerated (store the rule, not the list).
+
+**Status:** Resolved — handled by the timestamp-based "delivered" definition.
+
+
+
+
+
+
+
