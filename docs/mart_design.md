@@ -133,7 +133,7 @@ One phenomenon, two grains — not two separate issues.
 ---
 ## Tooling
 
-- Mart built as SQL in BigQuery (`olist_mart`), three-layer
-  `olist_raw → olist_stg → olist_mart`.
-- **Dashboard: tool decision pending** — Power BI Desktop (Windows-only) vs Looker Studio / Tableau Public (Mac-compatible). Settle before dashboard build.
+- Mart built as SQL in BigQuery (`olist_mart`), three-layer (`olist_raw → olist_stg → olist_mart`).
+- Analyze: SQL in BigQuery (browser — any device, incl. Mac).
+- Dashboard: Power BI Desktop (Windows PC — required, Windows-only).
 - Mart lives in BigQuery (cloud), reachable from any device; only the dashboard authoring step is device-bound.
