@@ -228,7 +228,14 @@ SELECT
   , ROUND(COUNT(*) *100 / SUM(COUNT(*)) OVER(),2)AS pct
   , ROUND(AVG(review_score),2) AS AVG
 FROM Q3_DB
-ORDER BY Type
+ORDER BY Type;
+---
+SELECT
+  COUNTIF(review_score IS NOT NULL) AS with_review,
+  COUNT(*) AS total_delivered,
+  ROUND(COUNTIF(review_score IS NOT NULL) * 100 / COUNT(*), 2) AS pct_with_review
+FROM `myprojectolist.Olist_mart.fct_order_delivery`
+WHERE days_vs_promise IS NOT NULL;
 ```
 
 **Numbers:**
@@ -238,13 +245,19 @@ ORDER BY Type
 >|days_vs_promise|-146|-16|-11|-10.958010282349942|-6|188|-1|18|96476|
 
 > Type and scores in average
-> |Type|N|pct|AVG|
+>|Type|N|pct|AVG|
+>|---|---|---|---|
 >|1.Early|87187|90.37|4.3|
 >|2.On-time|2754|2.85|4.1|
 >|3.Slightly Late|2770|2.87|2.99|
 >|4.Late|1672|1.73|1.77|
 >|5.SevereLate|2093|2.17|1.71|
 >|Total|96476|100.0|4.16|
+
+> orders with review
+>|with_review|total_delivered|pct_with_review|
+>|---|---|---|
+>|95830|96476|99.33|
 
 **Reading:**
 > Review score drops sharply as delivery slips past the promise: 4.3 (early) → 4.1 (on-time) → 2.99 (slightly late) → 1.77 (late) → 1.71 (severely late). The fall is not gradual — it is a cliff. On-time and early orders sit together near 4.2, then score collapses by ~1.1 points the moment an order is even 1–5 days late (4.1 → 2.99), and bottoms out around 1.7 for anything later. The late groups combined are only ~6,500 orders (6.7%) — a small minority, but hit hard.
@@ -258,8 +271,8 @@ ORDER BY Type
 **Limits:**
 > - Correlation, not causation: late orders score lower, but this does not prove lateness *causes* the low score. Late orders may share other problems (defective goods, weak sellers) that also depress ratings.
 > - Score reason unknown: review comment text is 58–88% null, so *why* a late order scores low is not answerable here — only that it does.
-> - Orders without a review are excluded from avg_score; the share of delivered orders that carry a review should be quantified and noted.
-> - Severe-late tail (>10 days) flagged for later cross-check with Q5 stuck orders.
+> - Coverage is near-complete: 95,830 of 96,476 delivered orders (99.33%) carry a review, so excluding review-less orders from avg_score has negligible effect.
+> - ***Severe-late tail (>10 days) flagged for later cross-check with Q5 stuck orders.***
 
 ---
 
