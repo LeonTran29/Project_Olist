@@ -170,7 +170,7 @@ ORDER BY Sort_flag, share_pct DESC;
 > - **Small-base states (SE, PI, RR, and the low-rate AC/AP/RO/AM)** — rates here sit on a few hundred orders or fewer, so treat as tentative; a handful of orders swings the percentage. Less focus for now until volume builds.
 
 **Limit:**
-> The analysis covers customer-state only, not seller-state. Seller-side lateness (where orders are *shipped* from) needs fct_order_items (item grain, seller_state not yet added) — see open thread. A full geographic view of delivery risk needs both sides.
+> The analysis covers customer-state only, not seller-state. ***Seller-side lateness (where orders are *shipped* from) needs fct_order_items (item grain, seller_state not yet added) — see open thread. A full geographic view of delivery risk needs both sides.***
 ---
 
 ## Q3 — Delivery → satisfaction: does late delivery pull review scores down?
