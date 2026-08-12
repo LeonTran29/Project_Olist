@@ -75,15 +75,87 @@ FROM lead_quan l
 ## Q2 — Lateness: what share of delivered orders arrive later than promised, and where does it concentrate?
 
 **Population:** delivered orders. Late rate = delivered late / all delivered.
-**Slice:** by customer_state, by seller_state.
+**Slice:** by customer_state
 
 **Query:**
 ```sql
--- TODO
+--- Q2: Share of late delivered orders
+WITH delivered_order AS
+(SELECT
+  order_id,
+  customer_state,
+  days_vs_promise
+FROM `myprojectolist.Olist_mart.fct_order_delivery`
+WHERE days_vs_promise IS NOT NULL)
+SELECT
+  "Late delivery" AS Share_of_late_delivery
+  , COUNTIF(days_vs_promise > 0) AS late_orders
+  , ROUND(COUNTIF(days_vs_promise > 0) * 100/COUNT(*),2) AS share_pct 
+  , COUNT(*) AS total_orders
+FROM delivered_order;
+--- Q2: Concentrate customer-sideWITH delivered_order AS
+(SELECT
+  order_id,
+  customer_state,
+  days_vs_promise
+FROM `myprojectolist.Olist_mart.fct_order_delivery`
+WHERE days_vs_promise IS NOT NULL)
+SELECT
+  customer_state
+  , COUNTIF(days_vs_promise > 0) AS late_orders
+  , ROUND(COUNTIF(days_vs_promise > 0) * 100/COUNT(*),3) AS share_pct 
+  , COUNT(*) AS total_orders
+  , 0 AS Sort_flag
+FROM delivered_order
+GROUP BY customer_state
+UNION ALL
+SELECT
+  'Total'
+  , COUNTIF(days_vs_promise > 0)
+  , ROUND(COUNTIF(days_vs_promise > 0) * 100/COUNT(*),3)
+  , COUNT(*)
+  , 1 AS Sort_flag
+FROM delivered_order
+ORDER BY Sort_flag, share_pct DESC;
 ```
 
 **Numbers:**
->
+> Late delivery orders
+> |Share_of_late_delivery|late_orders|share_pct|total_orders|
+> |---|---|---|---|
+> |Late delivery|6535|6.77|96476|
+
+> Late delivery orders on each customer_state
+> |customer_state|late_orders|share_pct|total_orders|
+> |---|---|---|---|
+> |AL|85|21.411|397|
+> |MA|125|17.434|717|
+> |SE|51|15.224|335|
+> |PI|66|13.866|476|
+> |CE|176|13.761|1279|
+> |RR|5|12.195|41|
+> |BA|396|12.162|3256|
+> |RJ|1495|12.102|12353|
+> |PA|106|11.205|946|
+> |ES|214|10.727|1995|
+> |PB|54|10.445|517|
+> |TO|27|9.854|274|
+> |MS|68|9.7|701|
+> |PE|153|9.605|1593|
+> |RN|44|9.283|474|
+> |SC|291|8.204|3547|
+> |GO|128|6.541|1957|
+> |RS|325|6.082|5344|
+> |MT|53|5.982|886|
+> |DF|118|5.673|2080|
+> |MG|520|4.579|11355|
+> |SP|1820|4.494|40495|
+> |PR|199|4.042|4923|
+> |AC|3|3.75|80|
+> |AP|2|2.985|67|
+> |RO|7|2.881|243|
+> |AM|4|2.759|145|
+> |Total|6535|6.774|96476|
 
 **Reading:**
 >
