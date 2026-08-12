@@ -180,20 +180,86 @@ ORDER BY Sort_flag, share_pct DESC;
 
 **Query:**
 ```sql
--- TODO
+WITH dataraw AS
+(SELECT
+  APPROX_QUANTILES(days_vs_promise,100) as pct
+  ,COUNT(*) AS N
+  ,AVG(days_vs_promise) AS AVG
+FROM `myprojectolist.Olist_mart.fct_order_delivery`
+WHERE days_vs_promise IS NOT NULL)
+SELECT
+  'days_vs_promise' AS column
+  ,d.pct[OFFSET(0)] AS min
+  ,d.pct[OFFSET(25)] AS Q25
+  ,d.pct[OFFSET(50)] AS median
+  ,d.AVG AS mean
+  ,d.pct[OFFSET(75)] AS Q75
+  ,d.pct[OFFSET(100)] AS max
+  ,d.pct[OFFSET(90)] AS P90
+  ,d.pct[OFFSET(99)] AS P99
+  ,d.N AS Total
+FROM dataraw AS d;
+
+---
+WITH Q3_DB AS
+(SELECT
+  days_vs_promise
+  , review_score
+  , CASE
+    WHEN days_vs_promise <0 THEN "1.Early"
+    WHEN days_vs_promise = 0 THEN "2.On-time"
+    WHEN days_vs_promise <= 5 THEN "3.Slightly Late"
+    WHEN days_vs_promise <= 10 THEN "4.Late"
+    ELSE "5.Severe Late"
+  END AS Type
+FROM `myprojectolist.Olist_mart.fct_order_delivery`
+WHERE days_vs_promise IS NOT NULL)
+SELECT
+  Type
+  , COUNT(*) AS N
+  , ROUND(COUNT(*) *100 / SUM(COUNT(*)) OVER(),2)AS pct
+  , ROUND(AVG(review_score),2) AS AVG
+FROM Q3_DB
+GROUP BY Type
+UNION ALL
+SELECT
+  'Total'
+  , COUNT(*) AS N
+  , ROUND(COUNT(*) *100 / SUM(COUNT(*)) OVER(),2)AS pct
+  , ROUND(AVG(review_score),2) AS AVG
+FROM Q3_DB
+ORDER BY Type
 ```
 
 **Numbers:**
->
+> Distribution of days_vs_promise 
+>|column|min|Q25|median|mean|Q75|max|P90|P99|Total|
+>|---|---|---|---|---|---|---|---|---|---|
+>|days_vs_promise|-146|-16|-11|-10.958010282349942|-6|188|-1|18|96476|
+
+> Type and scores in average
+> |Type|N|pct|AVG|
+>|1.Early|87187|90.37|4.3|
+>|2.On-time|2754|2.85|4.1|
+>|3.Slightly Late|2770|2.87|2.99|
+>|4.Late|1672|1.73|1.77|
+>|5.SevereLate|2093|2.17|1.71|
+>|Total|96476|100.0|4.16|
 
 **Reading:**
->
+> Review score drops sharply as delivery slips past the promise: 4.3 (early) → 4.1 (on-time) → 2.99 (slightly late) → 1.77 (late) → 1.71 (severely late). The fall is not gradual — it is a cliff. On-time and early orders sit together near 4.2, then score collapses by ~1.1 points the moment an order is even 1–5 days late (4.1 → 2.99), and bottoms out around 1.7 for anything later. The late groups combined are only ~6,500 orders (6.7%) — a small minority, but hit hard.
 
 **So what:**
->
+> The decisive line for satisfaction is on-time vs late, not how late.
+> - Delivering *early* buys almost nothing over delivering *on-time* (4.3 vs 4.1) — customers don't reward beating the promise, they just expect it kept.
+> - The penalty lands the instant the promise is broken: a 1–5 day slip already costs ~1.1 score points. Beyond that, being 5 days late (2.99) vs 30+ days late (1.71) matters far less than crossing the line at all.
+> - Operationally this reframes the target: the goal is not "deliver fast," it is "don't miss the promised date." Meeting the estimate — however padded — protects the score; breaching it is what customers punish.
 
 **Limits:**
->
+> - Correlation, not causation: late orders score lower, but this does not prove lateness *causes* the low score. Late orders may share other problems (defective goods, weak sellers) that also depress ratings.
+> - Score reason unknown: review comment text is 58–88% null, so *why* a late order scores low is not answerable here — only that it does.
+> - Orders without a review are excluded from avg_score; the share of delivered orders that carry a review should be quantified and noted.
+> - Severe-late tail (>10 days) flagged for later cross-check with Q5 stuck orders.
 
 ---
 
