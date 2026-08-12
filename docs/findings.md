@@ -158,14 +158,19 @@ ORDER BY Sort_flag, share_pct DESC;
 > |Total|6535|6.774|96476|
 
 **Reading:**
->
+> Only 6,535 orders (6.77%) of delivered orders are late. SP and RJ have the highest count of late orders (1,820 and 1,495), but their rates are low — the high rates concentrate in a cluster of states: AL, MA, SE, PI, CE.
 
 **So what:**
+> Overall late rate is 6.77%, but it ranges widely by state — from 2.8% (AM) to 21.4% (AL). A broad pattern stands out: high-rate states are low-volume, low-rate states are high-volume — hinting that smaller / more remote markets get less reliable delivery. Three groups to read differently:
 >
-
-**Limits:**
+> - **SP and RJ** — highest count of late orders, but low rates (4.5% / 12.1%) on very large volumes (40,495 / 12,353). Worth monitoring for the number of customers affected, but not the risk hotspot: their late orders are a by-product of scale, not a reliability problem.
 >
+> - **High-rate cluster (AL, MA, SE, PI, CE, all >13%)** — this is where lateness actually concentrates. Within it, MA (17.4%, 717 orders) and CE (13.8%, 1,279) are the most trustworthy signals: high rate on a base large enough to not be noise. AL tops the table at 21.4% on a moderate base (397) — high enough to flag, not dismiss.
+>
+> - **Small-base states (SE, PI, RR, and the low-rate AC/AP/RO/AM)** — rates here sit on a few hundred orders or fewer, so treat as tentative; a handful of orders swings the percentage. Less focus for now until volume builds.
 
+**Limit:**
+> The analysis covers customer-state only, not seller-state. Seller-side lateness (where orders are *shipped* from) needs fct_order_items (item grain, seller_state not yet added) — see open thread. A full geographic view of delivery risk needs both sides.
 ---
 
 ## Q3 — Delivery → satisfaction: does late delivery pull review scores down?
