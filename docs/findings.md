@@ -559,6 +559,7 @@ ORDER BY pct DESC;
 
 **Numbers:**
 > |customer_state|N|pct|Total_orders|
+> |---|---|---|---|
 > |SE|14|4.0|350|
 > |CE|50|3.74|1336|
 > |AL|15|3.63|413|
