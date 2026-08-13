@@ -430,3 +430,6 @@ ORDER BY customer_state ASC, stall_stage ASC;
 
 One paragraph tying the five together: where does delivery risk live, and what
 would an operations team act on first? This is the interview-facing summary.
+
+## Note:
+> Open thread — Q2×Q4 seller/customer geographic pairing: Q2 done customer-state (nơi nhận trễ). Q4b will add seller-state (nơi gửi trễ). At synthesis, pair them: which sending states ↔ which receiving states, to see if lateness is a route problem (specific seller-state → customer-state lanes) or a source problem (certain seller-states late everywhere). Also pair stuck-rate-by-state (Q5) into the same geographic view.
