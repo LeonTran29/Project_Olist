@@ -416,13 +416,13 @@ ORDER BY customer_state ASC, stall_stage ASC;
 > |SP|stuck_at_purchase|1|0.04|
 
 **Reading:**
->
+> Of 2,965 orders that never arrive, 619 are canceled and the remaining 2,346 (79%) are stuck — this is where the focus should be. Most are stuck at the carrier and approval stages. The most notable states are SP and RJ: SP contributes 924 stuck orders (589 approval + 335 carrier) and RJ 415 (126 approval + 289 carrier), together ~57% of all stuck orders.
 
 **So what:**
->
+> 79% of never-arrived orders are stuck, and SP + RJ alone account for over half of them (SP ~39%, RJ ~18%). Looking closer at the contribution split: RJ's stuck orders sit mostly at the carrier stage (transport), while SP is stuck more at approval than at carrier. The bottleneck concentrates at the carrier/approval stages — worth investigating why.
 
 **Limits:**
->
+> This analysis measures each state's *contribution* to total stuck risk, not its stuck *rate*. High-contribution states (SP, RJ) are also the highest-volume states, so their large stuck counts partly reflect scale. ***A per-state stuck rate is not computed yet. It should be added later as a geographic risk view — combining late-rate (Q2) and stuck-rate (Q5) by state, since both share the same volume caveat.***
 
 ---
 
