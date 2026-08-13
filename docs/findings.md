@@ -309,11 +309,111 @@ WHERE days_vs_promise IS NOT NULL;
 
 **Query:**
 ```sql
--- TODO
+--- Q5: Part 1
+SELECT
+  COUNT(*) AS Total_never_arrive,
+  COUNTIF(order_status = 'canceled') AS Those_canceled,
+  COUNT(*) - COUNTIF(order_status = 'canceled') AS Those_stucked
+FROM `myprojectolist.Olist_mart.fct_order_delivery`
+WHERE order_delivered_customer_date IS NULL;
+
+--- Q5: Part 2
+SELECT
+  stall_stage,
+  COUNT(*) AS N
+FROM `myprojectolist.Olist_mart.fct_order_delivery`
+WHERE order_delivered_customer_date IS NULL AND order_status != 'canceled'
+GROUP BY stall_stage
+UNION ALL
+SELECT
+  'Total',
+  COUNT(*) AS N
+FROM `myprojectolist.Olist_mart.fct_order_delivery`
+WHERE order_delivered_customer_date IS NULL AND order_status != 'canceled';
+
+SELECT
+  customer_state
+  ,stall_stage
+  ,COUNT(*) AS N
+  ,ROUND(COUNT(*) *100 / SUM(COUNT(*)) OVER(),2)AS pct
+FROM `myprojectolist.Olist_mart.fct_order_delivery`
+WHERE order_delivered_customer_date IS NULL AND order_status != 'canceled'
+GROUP BY customer_state,stall_stage
+ORDER BY customer_state ASC, stall_stage ASC;
 ```
 
 **Numbers:**
 > _(from mart validation: stall_stage non-'delivered' ≈ 2,965 orders; break down here)_
+> |Total_never_arrive|Those_canceled|Those_stucked|
+> |---|---|---|
+> |2965|619|2346|
+
+> And so,
+> |stall_stage|N|
+> |---|---|
+> |stuck_at_carrier|1114|
+> |stuck_after_approval|1227|
+> |stuck_at_purchase|5|
+> |Total|2346|
+
+> And into customer_state over the whole risks.
+> |customer_state|stall_stage|N|pct|
+> |---|---|---|---|
+> |SP|stuck_after_approval|589|25.11|
+> |SP|stuck_at_carrier|335|14.28|
+> |RJ|stuck_at_carrier|289|12.32|
+> |MG|stuck_after_approval|146|6.22|
+> |RJ|stuck_after_approval|126|5.37|
+> |MG|stuck_at_carrier|71|3.03|
+> |PR|stuck_after_approval|70|2.98|
+> |BA|stuck_at_carrier|68|2.9|
+> |RS|stuck_after_approval|59|2.51|
+> |SC|stuck_after_approval|44|1.88|
+> |BA|stuck_after_approval|40|1.71|
+> |CE|stuck_at_carrier|38|1.62|
+> |RS|stuck_at_carrier|37|1.58|
+> |PE|stuck_at_carrier|35|1.49|
+> |GO|stuck_at_carrier|31|1.32|
+> |DF|stuck_at_carrier|30|1.28|
+> |PR|stuck_at_carrier|29|1.24|
+> |SC|stuck_at_carrier|28|1.19|
+> |DF|stuck_after_approval|22|0.94|
+> |GO|stuck_after_approval|19|0.81|
+> |PA|stuck_at_carrier|19|0.81|
+> |PE|stuck_after_approval|19|0.81|
+> |ES|stuck_at_carrier|17|0.72|
+> |MA|stuck_at_carrier|17|0.72|
+> |MT|stuck_at_carrier|14|0.6|
+> |CE|stuck_after_approval|12|0.51|
+> |ES|stuck_after_approval|12|0.51|
+> |PB|stuck_at_carrier|11|0.47|
+> |AL|stuck_at_carrier|9|0.38|
+> |MA|stuck_after_approval|9|0.38|
+> |MS|stuck_after_approval|9|0.38|
+> |SE|stuck_at_carrier|9|0.38|
+> |PI|stuck_after_approval|8|0.34|
+> |PI|stuck_at_carrier|7|0.3|
+> |RN|stuck_at_carrier|7|0.3|
+> |RO|stuck_after_approval|7|0.3|
+> |AL|stuck_after_approval|6|0.26|
+> |PA|stuck_after_approval|6|0.26|
+> |PB|stuck_after_approval|6|0.26|
+> |MT|stuck_after_approval|5|0.21|
+> |SE|stuck_after_approval|5|0.21|
+> |RN|stuck_after_approval|4|0.17|
+> |RR|stuck_at_carrier|4|0.17|
+> |MS|stuck_at_carrier|3|0.13|
+> |TO|stuck_at_carrier|3|0.13|
+> |AM|stuck_at_carrier|2|0.09|
+> |TO|stuck_after_approval|2|0.09|
+> |AC|stuck_at_carrier|1|0.04|
+> |AM|stuck_after_approval|1|0.04|
+> |AP|stuck_after_approval|1|0.04|
+> |DF|stuck_at_purchase|1|0.04|
+> |PR|stuck_at_purchase|1|0.04|
+> |RJ|stuck_at_purchase|1|0.04|
+> |RS|stuck_at_purchase|1|0.04|
+> |SP|stuck_at_purchase|1|0.04|
 
 **Reading:**
 >
