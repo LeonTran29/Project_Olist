@@ -422,7 +422,7 @@ ORDER BY late_rate_pct DESC;
 **Population:** never-delivered orders (delivered_customer_date IS NULL), excluding status = 'canceled'.
 **Measure:** count by stall_stage, and by customer_state.
 
-**Query:**
+**Query 5:**
 ```sql
 --- Q5: Part 1
 SELECT
@@ -538,6 +538,67 @@ ORDER BY customer_state ASC, stall_stage ASC;
 
 **Limits:**
 > This analysis measures each state's *contribution* to total stuck risk, not its stuck *rate*. High-contribution states (SP, RJ) are also the highest-volume states, so their large stuck counts partly reflect scale. ***A per-state stuck rate is not computed yet. It should be added later as a geographic risk view — combining late-rate (Q2) and stuck-rate (Q5) by state, since both share the same volume caveat.***
+
+**Query 5 (add-on) -Stuck rate by customer-state:**
+```sql
+SELECT
+  customer_state
+  ,COUNTIF(order_delivered_customer_date IS NULL AND order_status != 'canceled') AS N
+  ,ROUND(COUNTIF(order_delivered_customer_date IS NULL AND order_status != 'canceled') *100 / COUNT(*),2)AS pct
+  ,COUNT(*) AS Total_orders
+FROM `myprojectolist.Olist_mart.fct_order_delivery`
+GROUP BY customer_state
+HAVING N >= 11
+ORDER BY pct DESC;
+```
+
+**Note on threshold:**
+> States with very few orders are excluded (RR 46, AM/AP/AC/TO under ~300) —
+> their rates swing on 1-4 stuck orders (RR: 8.7% = 4 orders). Read the rate
+> only for states with enough volume.
+
+**Numbers:**
+> |customer_state|N|pct|Total_orders|
+> |SE|14|4.0|350|
+> |CE|50|3.74|1336|
+> |AL|15|3.63|413|
+> |MA|26|3.48|747|
+> |PE|54|3.27|1652|
+> |RJ|416|3.24|12852|
+> |BA|108|3.2|3380|
+> |PB|17|3.17|536|
+> |PI|15|3.03|495|
+> |PA|25|2.56|975|
+> |DF|53|2.48|2140|
+> |GO|50|2.48|2020|
+> |RN|11|2.27|485|
+> |SP|925|2.22|41746|
+> |MT|19|2.09|907|
+> |PR|100|1.98|5045|
+> |SC|72|1.98|3637|
+> |MG|217|1.87|11635|
+> |RS|97|1.77|5466|
+> |MS|12|1.68|715|
+> |ES|29|1.43|2033|
+
+> After removing small-N noise, stuck rate runs ~1.4% to ~4% — a narrow band.
+> MA 3.48%, RJ 3.24%, BA 3.20%, SP 2.22%, MG 1.87%. No state stands out.
+
+**Reading:**
+> Unlike lateness, stuck rate is nearly flat across states. Late rate (Q2) spanned 2.8-21.4% by state; stuck rate spans only ~1.4-4%. The earlier "SP/RJ are top stuck states" was a volume illusion — SP has 925 stuck orders but on 41,746 total, a rate of 2.22% (among the lowest). Counting absolute stuck orders just re-finds the biggest states.
+
+**So what:**
+> Stuck orders are not a regional problem — they are a system-stage problem.
+> They cluster at the carrier/approval stages (Q5 main), not in particular states. This splits the two risks cleanly:
+> - Lateness → regional (varies sharply by state; MA worst on both send/receive).
+> - Stuck → structural (flat by state; concentrated in logistics stages).
+> So MA is the standout risk node, but its risk is lateness, not stalling.
+> RJ, which looked top-ranked on stuck counts, is mid-pack on every rate.
+
+**Limits:**
+> - Stuck rate uses "never delivered as of the data snapshot" as the numerator. An order counts as stuck if delivered_customer_date is null now — but some of these may simply be recent orders still legitimately in transit, not truly stalled. Without an "order age" cutoff, the rate slightly overstates real stalling. (Q1's tail check partly covers this, but not per-state.)
+> - Small-volume states excluded by judgment, not a fixed threshold — a few mid-size states sit near the cut and could shift the ranking.
+> - Rate is by customer-state (where the order was going). A stuck order's problem may originate at the seller side or in transit, not at the destination state — so "MA has X% stuck rate" locates the affected customers, not necessarily the cause.
 
 ---
 
