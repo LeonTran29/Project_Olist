@@ -285,17 +285,82 @@ WHERE days_vs_promise IS NOT NULL;
 
 **Query:**
 ```sql
--- TODO
+WITH delivered_lines AS (
+  SELECT
+    COALESCE(product_category_name_english, 'uncategorized') AS category,
+    is_late
+  FROM `myprojectolist.Olist_mart.fct_order_items`
+  WHERE is_late != 'Not_delivered'   -- chỉ order-line đã giao (Late + Good)
+)
+SELECT
+  category,
+  COUNTIF(is_late = 'Late') AS late_lines,
+  COUNT(*) AS total_lines,
+  ROUND(COUNTIF(is_late = 'Late') * 100 / COUNT(*), 2) AS late_rate_pct
+FROM delivered_lines
+GROUP BY category
+HAVING total_lines >=250
+ORDER BY late_rate_pct DESC;
 ```
+**Note on threshold:**
+> Categories with fewer than 250 delivered order-lines are excluded. Below that, the late rate swings on a handful of orders (e.g. home_comfort_2: 30 lines, 13% = 4 late orders) — noise, not signal. 250 is a judgment cut, not a formula: it is the point where the rate stops jumping on small samples while still keeping categories with enough volume to trust (audio 362, home_confort 429). Q25 of total_lines was 83 — far too low to clear the noise, so not used.
 
 **Numbers:**
->
+>|category|late_lines|total_lines|late_rate_pct|
+>|---|---|---|---|
+>|audio|42|362|11.6|
+>|home_confort|40|429|9.32|
+>|books_technical|21|263|7.98|
+>|office_furniture|133|1668|7.97|
+>|baby|229|2982|7.68|
+>|electronics|207|2729|7.59|
+>|health_beauty|717|9467|7.57|
+>|uncategorized|116|1559|7.44|
+>|musical_instruments|48|651|7.37|
+>|construction_tools_lights|22|301|7.31|
+>|watches_gifts|422|5857|7.21|
+>|furniture_living_room|35|495|7.07|
+>|furniture_decor|574|8160|7.03|
+>|auto|291|4139|7.03|
+>|bed_bath_table|770|10953|7.03|
+>|food|35|499|7.01|
+>|telephony|308|4430|6.95|
+>|stationery|167|2466|6.77|
+>|garden_tools|280|4268|6.56|
+>|perfumery|217|3342|6.49|
+>|computers_accessories|496|7643|6.49|
+>|industry_commerce_and_business|17|264|6.44|
+>|toys|256|4030|6.35|
+>|construction_tools_construction|58|916|6.33|
+>|sports_leisure|532|8431|6.31|
+>|books_general_interest|33|536|6.16|
+>|consoles_games|64|1089|5.88|
+>|home_construction|35|596|5.87|
+>|cool_stuff|217|3718|5.84|
+>|fashion_bags_accessories|105|1986|5.29|
+>|housewares|340|6795|5.0|
+>|pet_shop|95|1924|4.94|
+>|small_appliances|30|658|4.56|
+>|home_appliances|34|754|4.51|
+>|drinks|16|361|4.43|
+>|kitchen_dining_laundry_garden_furniture|12|274|4.38|
+>|fashion_shoes|11|257|4.28|
+>|luggage_accessories|45|1077|4.18|
+>|food_drink|11|269|4.09|
+>|fixed_telephony|10|255|3.92|
+>|air_conditioning|11|289|3.81|
+>|market_place|11|305|3.61|
 
 **Reading:**
->
+> - After filtering to categories with >= 250 order-lines, late rate runs from 3.6% to 11.6%.
+> - Two categories stand out at the top: audio (11.6%, 362 lines) and home_confort (9.32%, 429 lines) — both high AND on enough volume to trust.
+> - The third-highest (books_technical) is already down at 7.98%, so audio and home_confort are genuine outliers, not the top of a smooth range.
+> - Most categories cluster tightly in the 6-8% band, sitting right around the overall late rate of 6.77% (Q2).
 
 **So what:**
->
+> - Delivery lateness is mostly flat across product categories. ~90% of categories sit in a narrow 5-8% band — the type of product barely moves the late rate.
+> - Only audio and home_confort break out, and even they are worth a second look rather than a conclusion (why audio? bulky goods, or sellers concentrated in late-prone states? — to check in Q4b seller-side).
+> - The bigger point comes from comparing spreads: by category, rate spans 3.6-11.6% but stays inside 5-8% for almost everything; by state (Q2) it spans 2.8-21.4%. Geography splits delivery risk far more sharply than product type does. If the goal is to cut lateness, the lever is the route / location, not the catalog.
 
 **Limits:**
 >
