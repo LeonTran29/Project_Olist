@@ -283,7 +283,7 @@ WHERE days_vs_promise IS NOT NULL;
 **Guardrail:** minimum-volume threshold per category before trusting a rate.
 **Unit:** ORDER-LINES, not orders.
 
-**Query:**
+**Query 4a:**
 ```sql
 WITH delivered_lines AS (
   SELECT
@@ -362,8 +362,58 @@ ORDER BY late_rate_pct DESC;
 > - Only audio and home_confort break out, and even they are worth a second look rather than a conclusion (why audio? bulky goods, or sellers concentrated in late-prone states? — to check in Q4b seller-side).
 > - The bigger point comes from comparing spreads: by category, rate spans 3.6-11.6% but stays inside 5-8% for almost everything; by state (Q2) it spans 2.8-21.4%. Geography splits delivery risk far more sharply than product type does. If the goal is to cut lateness, the lever is the route / location, not the catalog.
 
-**Limits:**
->
+**Query 4b:**
+```sql
+WITH delivered_lines AS (
+  SELECT
+    seller_state,
+    is_late
+  FROM `myprojectolist.Olist_mart.fct_order_items`
+  WHERE is_late != 'Not_delivered'
+)
+SELECT
+  seller_state,
+  COUNTIF(is_late = 'Late') AS late_lines,
+  COUNT(*) AS total_lines,
+  ROUND(COUNTIF(is_late = 'Late') * 100 / COUNT(*), 2) AS late_rate_pct
+FROM delivered_lines
+GROUP BY seller_state
+HAVING total_lines > 144
+ORDER BY late_rate_pct DESC;
+```
+**Note on threshold:**
+> Seller-states with fewer than ~150 order-lines are excluded. The distribution has a natural gap: ES has 364 lines, the next (MT) drops to 144, with nothing between. Cutting in that gap removes small-sample noise (AM: 3 lines = 33%; RO/PI/SE/PA: 8-14 lines = 0%) while keeping the 12 states with enough volume to trust. This is a cleaner cut than Q4a's — the data left an obvious gap.
+
+**Numbers:**
+> |seller_state|late_lines|total_lines|late_rate_pct|
+> |---|---|---|---|
+> |MA|78|402|19.4|
+> |SP|5586|78600|7.11|
+> |RJ|324|4689|6.91|
+> |DF|53|883|6.0|
+> |ES|21|364|5.77|
+> |PR|450|8487|5.3|
+> |SC|194|4000|4.85|
+> |MG|412|8602|4.79|
+> |BA|28|624|4.49|
+> |PE|15|445|3.37|
+> |RS|70|2169|3.23|
+> |GO|13|508|2.56|
+
+**Reading:**
+> - Across the 12 seller-states with >= ~150 delivered lines, late rate runs from 2.6% to 19.4%. One state stands out sharply: MA (19.4%, 402 lines) — nearly triple the overall 6.77% and far above the next.
+> - Every other state sits at 7.1% or below: SP (7.11%, 78,600 lines), RJ (6.91%), then a decline to the low-single-digits. Note SP alone holds ~70% of all lines, so its 7.11% effectively defines the baseline.
+
+**So what:**
+> - Like category, seller-state lateness is mostly flat — one clear outlier (MA) and everything else clustered near or below the baseline. The story is not "sellers vary widely"; it is "one state is a problem, the rest are ordinary."
+> - The key link is to Q2: MA is high on BOTH sides — 2nd-highest as a customer state (17.4%, orders arriving late) and highest as a seller state (19.4%, orders shipping late). MA is not late in one direction; it is a weak logistics node overall — slow to receive and slow to send. That points to a regional infrastructure problem, not a specific-lane or specific-seller one.
+
+**Limits (Q4 overall):**
+> - Unit is order-lines, not orders: a 3-item late order contributes 3 to its categories'/sellers' late counts. Rates are line-level, not order-level.
+> - Volume thresholds (250 lines for category, ~150 for seller-state) are judgment cuts to remove small-sample noise, not statistical rules; a few borderline groups sit just under the line and are excluded.
+> - This is the RATE view (which categories/states are most late-PRONE), not the COUNT view. High-volume groups like bed_bath_table (770 late lines) or SP seller (5,586 late lines) carry the most late orders in absolute terms despite ordinary rates — a separate "where to act for scale" question, not yet done.
+> - Correlation only: audio and MA stand out, but the cause is not established. Audio may be bulky goods or sellers clustered in late-prone states; MA may be a regional infrastructure issue. Confirming would need deeper joins (e.g. audio sellers' locations) — flagged, not resolved.
+> - Category and seller-state are analyzed separately; a category × seller-state cross (is audio late everywhere, or only from certain states?) is not done.
 
 ---
 
