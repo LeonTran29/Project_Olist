@@ -599,14 +599,38 @@ ORDER BY pct DESC;
 **Limits:**
 > - Stuck rate uses "never delivered as of the data snapshot" as the numerator. An order counts as stuck if delivered_customer_date is null now — but some of these may simply be recent orders still legitimately in transit, not truly stalled. Without an "order age" cutoff, the rate slightly overstates real stalling. (Q1's tail check partly covers this, but not per-state.)
 > - Small-volume states excluded by judgment, not a fixed threshold — a few mid-size states sit near the cut and could shift the ranking.
-> - Rate is by customer-state (where the order was going). A stuck order's problem may originate at the seller side or in transit, not at the destination state — so "MA has X% stuck rate" locates the affected customers, not necessarily the cause.
+> - Rate is by customer-state (where the order was going). A stuck order's problem may originate at the seller side or in transit, not at the destination state — so "MA has 3.48% stuck rate" locates the affected customers, not necessarily the cause.
 
 ---
 
 ## Synthesis (fill last)
 
-One paragraph tying the five together: where does delivery risk live, and what
-would an operations team act on first? This is the interview-facing summary.
+## Synthesis
 
-## Note:
-> Open thread — Q2×Q4 seller/customer geographic pairing: Q2 done customer-state (nơi nhận trễ). Q4b will add seller-state (nơi gửi trễ). At synthesis, pair them: which sending states ↔ which receiving states, to see if lateness is a route problem (specific seller-state → customer-state lanes) or a source problem (certain seller-states late everywhere). Also pair stuck-rate-by-state (Q5) into the same geographic view.
+Presented in analytical order: Q1 → Q2 → Q3 → Q5 → Q4.
+
+**Central finding: Olist's delivery risk lives in the tail, not the average.**
+On the surface the operation looks healthy — the typical order arrives in ~10 days and 93% of orders are on time. But the averages hide the risk: a small
+tail of late and stuck orders, concentrated in specific regions and logistics stages, does damage out of proportion to its size.
+
+**The order lifecycle (Q1 → Q5):**
+- Q1 — the typical order delivers in 10 days (median), but the distribution is right-skewed with a long tail: P99 = 46 days, max 209. The average is fine; the tail is not.
+- Q2 — only 6.77% of delivered orders are late, but lateness is not spread evenly. It concentrates in remote, low-volume states (AL, MA, SE at 13-21%) while high-volume SP/RJ stay low.
+- Q3 — lateness is not cosmetic. Review score collapses the moment an order misses its promise: 4.1 (on-time) → 2.99 (1-5 days late). It is a cliff, not a slope — customers punish crossing the line, not the distance past it.
+- Q5 — at the extreme tail, 2,346 orders never arrive, stuck mostly at the carrier and approval stages.
+
+**Geography (Q2 + Q4b + Q5, same rate basis):**
+Lateness is a regional story; stalling is not.
+- Late rate varies sharply by state (2.8-21.4%). MA is the standout — worst as both a receiving state (Q2, 17.4%) and a sending state (Q4b, 19.4%): a weak logistics node, slow in both directions.
+- Stuck rate, by contrast, is flat by state (~1.4-4%). The earlier "SP/RJ are the top stuck states" was a volume illusion — SP has 925 stuck orders but on 41,746 total, a 2.22% rate. Stalling clusters by stage (carrier/approval), not by region.
+
+**Product type (Q4a):**
+Category barely moves the needle — most categories sit in a 6-8% late band, with only audio (11.6%) breaking out. Geography splits delivery risk far more sharply than product type does.
+
+**So what:**
+Olist doesn't have a speed problem — it has a reliability problem. The average delivery is fine; the risk is a tail of late and stuck orders, concentrated in
+weak regions (MA above all) and in the carrier/approval stages, amplified by customers who punish any missed promise hard. The lever is regional and logistics-stage reliability — not average speed, and not the product mix.
+This is a question of delivery as an operational capability: measured not by how it performs on average, but by how reliably it holds up in the tail.
+
+## Note — future work
+> Source vs route: MA is late on both send and receive sides, suggesting a regional (source) weakness rather than a specific slow lane. Confirming would need a seller-state × customer-state cross-tab — data-thin at pair level, left as future work.
