@@ -52,11 +52,29 @@ while category is smoother, so 250 is chosen.
 - Version control: Git/GitHub
 
 **Repository structure:**
-- sql/          → 01_profiling, 02_staging, 03_mart, 04_analysis
-- docs/         → profiling_findings.md, mart_design.md, data_quality_log.md, findings.md, data_model.md, IMG_20260817_210852_Dashboard.png
+```
+- sql/
+├── 01_Profiling.sql          # profiling entry
+├── 01a_structure.sql         # table structure
+├── 01b_keys.sql              # key checks
+├── 01c_nulls.sql             # null profiling
+├── 01d_cardinality.sql       # cardinality
+├── 01e_range.sql             # value ranges
+├── 01f_domain.sql            # domain / valid values
+├── 01g_referential.sql       # referential integrity
+├── 01h_business.sql          # business-rule checks
+└── 02_Mart.sql               # staging + mart build
+- docs/
+├── profiling_findings.md
+├── mart_design.md
+├── data_quality_log.md
+├── findings.md
+├── data_model.md
+└── IMG_20260817_210852_Dashboard.png
 - README.md
 - .gitignore
 - LICENSE
+```
 
 **Link to full analysis:**
 - Link to [findings.md](docs/findings.md)
