@@ -59,5 +59,5 @@ sql/          → 01_profiling, 02_staging, 03_mart, 04_analysis
 docs/         → mart_design.md, data_quality_log.md, findings.md, dashboard.png
 README.md
 
-** Link to full analysis:**
-- link to findings.md
+**Link to full analysis:**
+- Link to [findings.md](https://github.com/LeonTran29/Project_Olist/blob/main/docs%2Ffindings.md)
