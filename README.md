@@ -63,7 +63,12 @@ while category is smoother, so 250 is chosen.
 ├── 01f_domain.sql            # domain / valid values
 ├── 01g_referential.sql       # referential integrity
 ├── 01h_business.sql          # business-rule checks
-└── 02_Mart.sql               # staging + mart build
+├── 02_Mart.sql               # staging + mart build
+├── 03_Question-1.sql         # Q1 lead time distribution
+├── 03_Question-2.sql         # Q2 late rate by state
+├── 03_Question-3.sql         # Q3 delivery vs review score
+├── 03_Question-4.sql         # Q4 category & seller risk
+└── 03_Question-5.sql         # Q5 stuck orders by stage
 - docs/
 ├── profiling_findings.md
 ├── mart_design.md
