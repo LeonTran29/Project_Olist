@@ -1,4 +1,3 @@
-# Project_Olist
 # Olist Delivery Risk Analysis
 
 **Delivery risk lives in the tail, not the average.**
@@ -18,7 +17,7 @@ Scope is deliberately operational - the flow of an order from purchase to delive
 not financial/payment analysis. Presented in analytical order: Q1 -> Q2 -> Q3 -> Q5 -> Q4.
 - Question 1 (Lead time): How long do orders take to deliver end-to-end?
 - Question 2 (Lateness): What share of delivered orders arrive later than promised, 
-and where does latness concentrate?
+and where does lateness concentrate?
 - Question 3 (Delivery & Satisfaction): Does late delivery pull review score down?
 - Question 4 (Category vs Seller risk): Which product categories (Q4a) and seller state (Q4b)
 carry the most delivery risk?
@@ -40,12 +39,12 @@ Olist_mart: from the Olist_stg, the data is transferred into 2 fact tables.
 
 **Key technical decisions:**
 - 2 mart tables are defined to analyze specific grains (orders and order-lines)
-- Q4 late-rate charts apply minimum-volme cut-offs (greater than and equal to 250 lines for category,
+- Q4 late-rate charts apply minimum-volume cut-offs (greater than and equal to 250 lines for category,
 greater than and equal to 150 for seller-state). Some states/categories
 show extreme rates on tiny samples - noise, not signal. The two thresholds differ
-because the distributions differ: seller-state has a natrual gap around 150,
+because the distributions differ: seller-state has a natural gap around 150,
 while category is smoother, so 250 is chosen. 
-- dim_state bridge for slicer cross_filter is done to filter risk by state, which is more important than categories in this analysis..
+- dim_state bridge for slicer cross_filter is done to filter risk by state, which is more important than categories in this analysis.
 
 **Tech stack:**
 - SQL: BigQuery
@@ -60,4 +59,4 @@ while category is smoother, so 250 is chosen.
 - LICENSE
 
 **Link to full analysis:**
-- Link to [findings.md](https://github.com/LeonTran29/Project_Olist/blob/main/docs%2Ffindings.md)
+- Link to [findings.md](docs/findings.md)
