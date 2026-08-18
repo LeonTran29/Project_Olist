@@ -4,9 +4,7 @@
 **Delivery risk lives in the tail, not the average.**
 An end-to-end SQL analysis of 100K+ Brazilian e-commerce orders (Olist), framed through a supply-chain/operational-risk lens: not "how fast does Olist deliver on average," but "where does delivery reliability break, who does it hurt, and what should operations fix first".
 
-
-[Image]
-
+![Dashboard](docs/IMG_20260817_210852_Dashboard.png)
 
 **Key findings:**
 - Delivery risk lives in the tail, not the average (median at 10 days, the tail reaches 209 days)
@@ -55,9 +53,11 @@ while category is smoother, so 250 is chosen.
 - Version control: Git/GitHub
 
 **Repository structure:**
-sql/          → 01_profiling, 02_staging, 03_mart, 04_analysis
-docs/         → mart_design.md, data_quality_log.md, findings.md, dashboard.png
-README.md
+- sql/          → 01_profiling, 02_staging, 03_mart, 04_analysis
+- docs/         → profiling_findings.md, mart_design.md, data_quality_log.md, findings.md, data_model.md, IMG_20260817_210852_Dashboard.png
+- README.md
+- .gitignore
+- LICENSE
 
 **Link to full analysis:**
 - Link to [findings.md](https://github.com/LeonTran29/Project_Olist/blob/main/docs%2Ffindings.md)
