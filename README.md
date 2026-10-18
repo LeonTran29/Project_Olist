@@ -8,7 +8,7 @@ An end-to-end SQL analysis of 100K+ Brazilian e-commerce orders (Olist), framed 
 **Key findings:**
 - Delivery risk lives in the tail, not the average (median at 10 days, the tail reaches 209 days)
 - Lateness concentrates in specific states - MA is the worst on both the receiving (customer, 17.4%) and sending (seller, 19.4%) sides.
-- Satisfaction score drops significantly when late delivery happens (4.1 to 3.0)
+- Satisfaction falls off a cliff once the promised date is missed (even a 1–5 day slip drops the average review score from 4.1 to 3.0).
 - Stalling is concentrated by funnel stage (carrier/approval), not by region.
 - Geography drives delivery risk more than product type does.
 
